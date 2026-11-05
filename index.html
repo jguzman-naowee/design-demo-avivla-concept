@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Demo web · Naowee</title>
+<link rel="stylesheet" href="shared/base.css">
+<link rel="stylesheet" href="web.css">
+</head>
+<body>
+<iframe class="stage" id="stage" title="Diseño"></iframe>
+<div class="vacio" id="vacio" hidden>
+  <h1>Aún no hay demos web</h1>
+  
+</div>
+
+<button type="button" class="tt-launch" id="launch" aria-haspopup="dialog" aria-expanded="false">
+  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" fill="currentColor"/><circle cx="15" cy="17" r="2.2" fill="currentColor"/></svg>
+  Configuraciones
+</button>
+
+<aside class="tt-panel" id="panel" role="dialog" aria-label="Configuraciones de la demo">
+  <div class="tt-h"><span id="titulo">Demo web</span>
+    <span>
+      <button type="button" class="tt-ib" id="compact" title="Compactar la UI al espacio disponible" aria-label="Compactar la UI" aria-pressed="false"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></button>
+      <button type="button" class="tt-ib" id="close" aria-label="Cerrar">×</button>
+    </span></div>
+  <div id="gApp"><div class="tt-grp">Demo</div>
+    <label class="sr" for="appSel">Demo</label><select id="appSel" class="tt-sel"></select></div>
+  <div id="gRol" hidden><div class="tt-grp">Ver como</div><div class="tt-roles" role="group" aria-label="Rol" id="segRol"></div></div>
+  <div id="gEsc" hidden><div class="tt-grp">Escenario</div><div class="tt-seg" role="group" aria-label="Escenario" id="segEsc"></div></div>
+  <div class="tt-grp">Datos</div>
+  <button type="button" class="tt-reset" id="reset">Restablecer datos de la demo</button>
+  <p class="tt-note">Al cambiar de rol se conserva dónde estás si ese rol puede verlo. Lo que crees queda en este navegador.</p>
+  <a class="tt-link" id="solo" target="_blank" rel="noopener">Abrir este prototipo solo →</a>
+</aside>
+
+<script src="apps/index.js"></script>
+<script src="web.js"></script>
+</body>
+</html>
