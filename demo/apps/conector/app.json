@@ -1,0 +1,6 @@
+{
+  "nombre": "Conector",
+  "subtitulo": "Brújula Ciudadana",
+  "inicio": "../../../app/brujula/index.html?rol=conector",
+  "superficie": "movil"
+}

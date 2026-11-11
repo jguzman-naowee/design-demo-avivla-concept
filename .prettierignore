@@ -1,10 +1,8 @@
 node_modules
-apps/digitacion/_assets/css/styles.css
-apps/digitacion/_assets/css/components.min.css
-apps/digitacion/_assets/css/icons.min.css
 package-lock.json
 shared/base.css
-web.css
-web.js
-index.html
-apps/index.js
+demo/demo.css
+demo/demo.js
+demo/index.html
+demo/apps/index.js
+app/brujula/_sdk

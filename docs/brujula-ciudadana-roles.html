@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Brújula Ciudadana · Roles, superficies e interacción</title>
+<link rel="stylesheet" href="../app/brujula/_sdk/css/fuentes.css">
+<style>
+@page{size:297mm 210mm;margin:0}
+:root{--ink:#16172B;--bg:#F2F3F7;--sf:#fff;--acc:#C2410C;--acc2:#FF9A5C;--mut:#5E6075;--line:#E3E5EC;--v:#1D9E75;--a:#E8A317;--r:#D93636}
+*{box-sizing:border-box}
+html,body{margin:0;background:#cfd2dc}
+body{font-family:-naotech-sdk-inter,system-ui,sans-serif;color:var(--ink);font-size:10.5pt;line-height:1.4;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+h1,h2,h3,p,ul{margin:0}
+.pg{width:297mm;height:210mm;overflow:hidden;position:relative;background:var(--bg);padding:11mm 16mm 9mm;display:flex;flex-direction:column;gap:5mm;break-after:page;page-break-after:always}
+.pg:last-child{break-after:auto;page-break-after:auto}
+@media screen{.pg{margin:12px auto;box-shadow:0 6px 24px rgba(22,23,43,.18)}}
+.top{display:flex;align-items:center;justify-content:space-between;font-size:8.5pt;color:var(--mut);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
+.brand{display:flex;align-items:center;gap:7px;color:var(--ink);font-weight:700;font-size:10pt;letter-spacing:0;text-transform:none}
+.brand i{width:16px;height:16px;border:2px solid var(--acc);border-radius:50%;display:inline-block;position:relative}
+.brand i::after{content:"";position:absolute;left:3px;top:3px;width:6px;height:6px;background:var(--acc);border-radius:50%}
+h1{font-size:23pt;line-height:1.08;letter-spacing:-.02em;font-weight:700}
+h1 span{color:var(--acc)}
+h2{font-size:14pt;letter-spacing:-.01em;font-weight:700}
+h3{font-size:10.5pt;font-weight:700}
+.lead{font-size:10.5pt;color:#3B3D55;max-width:150mm}
+.card{background:var(--sf);border-radius:5mm;padding:5mm 6mm}
+.eyebrow{font-size:8pt;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.muted{color:var(--mut)}
+.small{font-size:9pt}
+.row{display:flex;gap:6mm}
+.grow{flex:1;min-width:0}
+/* p1 */
+.p1 .hero{display:flex;gap:9mm;align-items:stretch;flex:1;min-height:0}
+.p1 .left{flex:1.3;display:flex;flex-direction:column;gap:4mm;min-width:0}
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:4mm}
+.val{background:var(--sf);border-radius:4mm;padding:3mm 4mm;display:flex;flex-direction:column;gap:1.5mm}
+.val b{font-size:10pt}
+.val p{font-size:9pt;color:#3B3D55}
+table{width:100%;border-collapse:collapse;font-size:9pt}
+th{text-align:left;font-size:7.5pt;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);font-weight:600;padding:0 3mm 2mm 0}
+td{padding:1.6mm 3mm 1.6mm 0;border-top:1px solid var(--line);vertical-align:top}
+td b{display:block;font-size:10pt}
+.tag{display:inline-block;padding:.6mm 2.4mm;border-radius:99px;font-size:7.5pt;font-weight:600;background:#EDEEF4;color:#3B3D55;margin-right:1.5mm}
+.tag.o{background:#FFE7D6;color:#8A2D00}
+.tag.d{background:var(--ink);color:#fff}
+.shots{flex:.8;display:flex;gap:5mm;align-items:flex-end;justify-content:center;min-width:0}
+.phone{width:44mm;border-radius:7mm;background:#16172B;padding:1.6mm;box-shadow:0 5mm 10mm rgba(22,23,43,.25)}
+.phone img{display:block;width:100%;border-radius:5.6mm}
+.phone.s{width:40mm;margin-bottom:8mm}
+.cap{font-size:7.5pt;color:var(--mut);text-align:center;margin-top:2mm}
+.win{border-radius:3mm;background:#fff;box-shadow:0 4mm 9mm rgba(22,23,43,.18);overflow:hidden}
+.win img{display:block;width:100%}
+/* p2 */
+.diag{flex:1;min-height:0;display:flex;gap:6mm;align-items:center}
+.diag svg{flex:1;min-width:0;max-height:100%}
+.side{width:78mm;display:flex;flex-direction:column;gap:4mm}
+.priv{background:var(--ink);color:#fff;border-radius:5mm;padding:5mm 6mm}
+.priv h3{color:var(--acc2);margin-bottom:2mm}
+.priv ul{padding:0}.priv li{margin-left:4mm;font-size:9pt;margin-bottom:1.4mm;color:#E8E9F0}
+.legend{display:flex;gap:4mm;font-size:8pt;color:var(--mut)}
+.legend i{display:inline-block;width:2.6mm;height:2.6mm;border-radius:50%;margin-right:1.2mm;vertical-align:-.2mm}
+/* p3 */
+.p3 .cols{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4mm;flex:1;min-height:0}
+.step{background:var(--sf);border-radius:5mm;padding:4mm 4.5mm;display:flex;flex-direction:row;gap:4.5mm;min-height:0;overflow:hidden}
+.step .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2mm}
+.step .n{width:6.5mm;height:6.5mm;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:9pt;flex:none}
+.step .hd{display:flex;align-items:center;gap:2.5mm}
+.step h3{font-size:11pt}
+.step .nl{font-size:9.6pt;line-height:1.45;color:#3B3D55}
+.step li{margin-bottom:.9mm}
+.step .win{width:53%;flex:none;align-self:center;border-radius:3mm;overflow:hidden;box-shadow:0 1.5mm 4mm rgba(22,23,43,.12)}
+.step .win img{width:100%;height:auto;display:block}
+.note{font-size:8pt;color:var(--mut)}
+.foot{display:flex;justify-content:space-between;font-size:7.5pt;color:var(--mut)}
+.p4 .body{display:flex;gap:12mm;flex:1;min-height:0;align-items:stretch}
+.p4 .txt{flex:1;display:flex;flex-direction:column;gap:5mm;justify-content:center}
+.p4 .pt{background:var(--sf);border-radius:5mm;padding:5mm 6mm;display:flex;gap:4mm;align-items:flex-start}
+.p4 .pt .n{width:7mm;height:7mm;border-radius:50%;background:var(--acc);color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:9.5pt;flex:none}
+.p4 .pt h3{font-size:12pt;margin-bottom:1mm}
+.p4 .pt p{font-size:10.5pt;color:#3B3D55}
+.p4 .ph{flex:1.35;display:flex;gap:6mm;align-items:center;justify-content:center;min-width:0}
+.p4 .ph .phone{width:50mm}
+.p4 .ph .phone.m{width:50mm;margin-top:10mm}
+</style>
+</head>
+<body>
+
+<!-- ───────── Página 1 ───────── -->
+<section class="pg p1">
+  <div class="top"><span class="brand"><i></i>Brújula Ciudadana</span><span>Roles, superficies e interacción · 1 / 4</span></div>
+  <div class="hero">
+    <div class="left">
+      <div>
+        <p class="eyebrow">Demo de concepto</p>
+        <h1>Una sola puerta para<br>llegar a <span>la ayuda que necesitas</span></h1>
+      </div>
+      <p class="lead">Pedir ayuda hoy es ir de ventanilla en ventanilla. Aquí es distinto: te registras una vez, cuentas cómo estás y se te conecta con lo que necesitas. Pensada ahora para personas migrantes.</p>
+      <div class="vals">
+        <div class="val"><span class="eyebrow">Si eres la persona</span><b>Sabes qué te toca</b><p>Te registras solo una vez y ves cómo va todo.</p></div>
+        <div class="val"><span class="eyebrow">Si acompañas</span><b>Tienes una ruta clara</b><p>Conoces a la persona y la llevas al recurso adecuado.</p></div>
+        <div class="val"><span class="eyebrow">Si eres una entidad</span><b>Recibes personas listas</b><p>Decides con lo justo y gestionas todo en un lugar.</p></div>
+      </div>
+      <div class="card" style="padding:3mm 5mm">
+        <table>
+          <thead><tr><th style="width:27%">Rol</th><th style="width:30%">Superficie</th><th>Qué hace</th></tr></thead>
+          <tbody>
+            <tr><td><b>Ciudadano</b></td><td><span class="tag o">Móvil</span></td><td>Se registra, llega a sus recursos y sigue su caso desde el teléfono.</td></tr>
+            <tr><td><b>Conector</b></td><td><span class="tag o">Móvil</span><span class="tag">Escritorio</span></td><td>Acompaña a las personas y las lleva a los recursos.</td></tr>
+            <tr><td><b>Entidad</b></td><td><span class="tag o">Escritorio</span><span class="tag">Móvil</span></td><td>Publica sus recursos y decide quién entra.</td></tr>
+            <tr><td><b>Registro de entidad</b></td><td><span class="tag o">Escritorio</span><span class="tag d">Admin</span></td><td>Suma una entidad nueva a la red.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="shots">
+      <div><div class="phone s"><img src="img/m-ciudadano-bienvenida.png" alt=""></div><p class="cap">Ciudadano · móvil</p></div>
+      <div><div class="phone"><img src="img/m-conector-personas.png" alt=""></div><p class="cap">Conector · móvil</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Los datos de la demo son de ejemplo.</span><span>Brújula Ciudadana · Naowee</span></div>
+</section>
+
+<!-- ───────── Página 2 ───────── -->
+<section class="pg p2">
+  <div class="top"><span class="brand"><i></i>Brújula Ciudadana</span><span>Roles, superficies e interacción · 2 / 4</span></div>
+  <div><p class="eyebrow">Cómo se conectan</p><h1 style="font-size:21pt">Cada rol hace una parte y <span>la persona nunca repite sus datos</span></h1></div>
+  <div class="diag">
+    <svg viewBox="0 0 660 430" role="img" aria-label="Flujo entre ciudadano, conector y entidad">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#16172B"/></marker>
+        <style>.ln{font:600 9.5px -naotech-sdk-inter,sans-serif;fill:#16172B}.lt{font:500 8.2px -naotech-sdk-inter,sans-serif;fill:#5E6075}.lh{font:700 8.4px -naotech-sdk-inter,sans-serif;letter-spacing:.08em}.bx{fill:#fff;stroke:#E3E5EC;stroke-width:1.2}.ar{stroke:#16172B;stroke-width:1.6;fill:none;marker-end:url(#ar)}.da{stroke-dasharray:4 4}.nb{fill:#C2410C}.nt{font:700 9px -naotech-sdk-inter,sans-serif;fill:#fff;text-anchor:middle}</style>
+      </defs>
+      <rect x="0" y="0" width="640" height="132" rx="14" fill="#FFE7D6" opacity=".6"/><text class="lh" style="fill:#8A2D00" x="14" y="20">CIUDADANO · MÓVIL</text>
+      <rect x="0" y="149" width="640" height="132" rx="14" fill="#E4E9FB" opacity=".75"/><text class="lh" style="fill:#2B3F8C" x="14" y="169">CONECTOR · MÓVIL</text>
+      <rect x="0" y="298" width="640" height="132" rx="14" fill="#E2F3EC" opacity=".85"/><text class="lh" style="fill:#0F6A4C" x="14" y="318">ENTIDAD · ESCRITORIO</text>
+
+      <!-- Ciudadano -->
+      <rect class="bx" x="20" y="44" width="135" height="64" rx="10"/><text class="ln" x="87" y="70" text-anchor="middle">Se autorregistra</text><text class="lt" x="87" y="84" text-anchor="middle">y da su consentimiento</text>
+      <rect class="bx" x="485" y="44" width="135" height="64" rx="10"/><text class="ln" x="552" y="70" text-anchor="middle">Accede a sus recursos</text><text class="lt" x="552" y="84" text-anchor="middle">y ve el estado de cada uno</text>
+      <!-- Conector -->
+      <rect class="bx" x="175" y="194" width="135" height="64" rx="10"/><text class="ln" x="242" y="218" text-anchor="middle">Registra o acompaña</text><text class="lt" x="242" y="232" text-anchor="middle">y completa el</text><text class="lt" x="242" y="244" text-anchor="middle">Mapa de Vida</text>
+      <rect class="bx" x="330" y="194" width="135" height="64" rx="10"/><text class="ln" x="397" y="220" text-anchor="middle">Ficha y ruta</text><text class="lt" x="397" y="234" text-anchor="middle">y recursos</text><text class="lt" x="397" y="246" text-anchor="middle">sugeridos</text>
+      <rect class="bx" x="485" y="194" width="135" height="64" rx="10"/><text class="ln" x="552" y="220" text-anchor="middle">Postula a un recurso</text><text class="lt" x="552" y="234" text-anchor="middle">de su entidad</text><text class="lt" x="552" y="246" text-anchor="middle">o de otra</text>
+      <!-- Entidad -->
+      <rect class="bx" x="20" y="343" width="135" height="64" rx="10"/><text class="ln" x="87" y="369" text-anchor="middle">Por asignar</text><text class="lt" x="87" y="383" text-anchor="middle">asigna un conector</text>
+      <rect class="bx" x="175" y="343" width="135" height="64" rx="10"/><text class="ln" x="242" y="369" text-anchor="middle">Mis personas</text><text class="lt" x="242" y="383" text-anchor="middle">expedientes con</text><text class="lt" x="242" y="395" text-anchor="middle">su Mapa de Vida</text>
+      <rect class="bx" x="485" y="343" width="135" height="64" rx="10"/><text class="ln" x="552" y="366" text-anchor="middle">Solicitudes: decide</text><text class="lt" x="552" y="382" text-anchor="middle">con la ficha mínima</text>
+
+      <!-- flechas -->
+      <path class="ar" d="M140 108V341"/>                                  <!-- 1 → Por asignar -->
+      <path class="ar" d="M155 375H165V226H173"/>                          <!-- 2 asigna conector → conector -->
+      <path class="ar" d="M310 226H328"/>
+      <path class="ar" d="M465 226H483"/>
+      <path class="ar" d="M552 258V341"/>                                  <!-- postula → entidad -->
+      <path class="ar da" d="M485 375H476V375" style="display:none"/>
+      <path class="ar da" d="M155 392H173" style="display:none"/>
+      <path class="ar da" d="M620 375H640V76H622"/>                        <!-- 7 decisión → ciudadano -->
+      <path class="ar da" d="M175 375H157" style="display:none"/>
+
+      <circle class="nb" cx="20" cy="44" r="9"/><text class="nt" x="20" y="47.2">1</text>
+      <circle class="nb" cx="20" cy="343" r="9"/><text class="nt" x="20" y="346.2">2</text>
+      <circle class="nb" cx="175" cy="194" r="9"/><text class="nt" x="175" y="197.2">3</text>
+      <circle class="nb" cx="330" cy="194" r="9"/><text class="nt" x="330" y="197.2">4</text>
+      <circle class="nb" cx="485" cy="194" r="9"/><text class="nt" x="485" y="197.2">5</text>
+      <circle class="nb" cx="485" cy="343" r="9"/><text class="nt" x="485" y="346.2">6</text>
+      <circle class="nb" cx="485" cy="44" r="9"/><text class="nt" x="485" y="47.2">7</text>
+    </svg>
+    <div class="side">
+      <div class="card">
+        <h3>El recorrido</h3>
+        <ol class="small" style="margin:2mm 0 0;padding-left:4.5mm;color:#3B3D55">
+          <li>La persona se registra.</li>
+          <li>Su entidad le asigna un conector.</li>
+          <li>Juntos completan su Mapa de Vida.</li>
+          <li>Sale una ruta de recursos.</li>
+          <li>El conector la postula a uno.</li>
+          <li>La entidad responde.</li>
+          <li>La persona lo ve y accede a sus recursos.</li>
+        </ol>
+      </div>
+      <div class="priv">
+        <h3>Privacidad en cada paso</h3>
+        <ul>
+          <li>Nadie ve más de lo necesario.</li>
+          <li>Quien decide ve una ficha mínima.</li>
+          <li>La persona puede ver quién consultó sus datos.</li>
+        </ul>
+      </div>
+      <div class="legend"><span><i style="background:#16172B"></i>Paso del recorrido</span><span><i style="background:#fff;border:1.2px dashed #16172B"></i>Respuesta que vuelve a la persona</span></div>
+    </div>
+  </div>
+  <div class="foot"><span>Los números del esquema siguen el orden del recorrido.</span><span>Brújula Ciudadana · Naowee</span></div>
+</section>
+
+<!-- ───────── Página 3 ───────── -->
+<section class="pg p3">
+  <div class="top"><span class="brand"><i></i>Brújula Ciudadana</span><span>Roles, superficies e interacción · 3 / 4</span></div>
+  <div><p class="eyebrow">La entidad, paso a paso</p><h1 style="font-size:21pt">Cómo una entidad <span>registra sus recursos y sus personas</span></h1></div>
+  <div class="cols">
+    <div class="step">
+      <div class="tx"><div class="hd"><span class="n">1</span><h3>Entra a la red</h3></div>
+        <p class="nl">El administrador da de alta a la entidad: quién es, dónde trabaja y en qué áreas ayuda.</p>
+        <p class="nl">Ahí mismo carga los primeros recursos que ofrece. Al verificar el correo, queda lista.</p></div>
+      <div class="win"><img src="img/c-alta.png" alt=""></div>
+    </div>
+    <div class="step">
+      <div class="tx"><div class="hd"><span class="n">2</span><h3>Publica sus recursos</h3></div>
+        <p class="nl">Desde <b>Mis recursos</b> crea uno nuevo en tres pasos: qué es, cómo se accede y los detalles.</p>
+        <p class="nl">Elige si es libre, con inscripción o por solicitud, y cuánto tarda en responder. Mientras escribe, ve cómo lo verán los conectores.</p></div>
+      <div class="win"><img src="img/c-recurso.png" alt=""></div>
+    </div>
+    <div class="step">
+      <div class="tx"><div class="hd"><span class="n">3</span><h3>Recibe a las personas</h3></div>
+        <p class="nl">Las personas llegan por sus conectores, o se registran solas y quedan <b>por asignar</b>.</p>
+        <p class="nl">La entidad elige un conector para cada una. En <b>Mis personas</b> ve a todas, con su Mapa de Vida.</p></div>
+      <div class="win"><img src="img/c-asignar.png" alt=""></div>
+    </div>
+    <div class="step">
+      <div class="tx"><div class="hd"><span class="n">4</span><h3>Responde las solicitudes</h3></div>
+        <p class="nl">Cuando alguien pide entrar a un recurso, ve lo justo: contacto y la necesidad, sin el diagnóstico completo.</p>
+        <p class="nl">Puede aprobar, dejar en espera, pedir más datos o rechazar con un motivo. La persona lo ve en su expediente.</p></div>
+      <div class="win"><img src="img/c-solicitud.png" alt=""></div>
+    </div>
+  </div>
+  <div class="foot"><span>Las entidades y los conectores los da de alta el administrador.</span><span>Brújula Ciudadana · Naowee</span></div>
+</section>
+
+<!-- ───────── Página 4 ───────── -->
+<section class="pg p4">
+  <div class="top"><span class="brand"><i></i>Brújula Ciudadana</span><span>Roles, superficies e interacción · 4 / 4</span></div>
+  <div><p class="eyebrow">Y al final, la persona</p><h1 style="font-size:21pt">Llega a sus recursos y <span>sabe en qué punto está cada uno</span></h1></div>
+  <div class="body">
+    <div class="txt">
+      <div class="pt"><span class="n">1</span><div><h3>Todo en un solo lugar</h3><p>Desde su teléfono ve los recursos a los que se postuló y si cada uno está en revisión, aprobado o en lista de espera.</p></div></div>
+      <div class="pt"><span class="n">2</span><div><h3>Siempre acompañada</h3><p>Su conector está a un toque: puede escribirle o llamarle.</p></div></div>
+      <div class="pt"><span class="n">3</span><div><h3>Con control de sus datos</h3><p>Ve quién consultó su información y qué compartió, y puede cambiarlo.</p></div></div>
+    </div>
+    <div class="ph">
+      <div><div class="phone"><img src="img/m-c-inicio.png" alt=""></div><p class="cap">Su inicio</p></div>
+      <div><div class="phone m"><img src="img/m-c-recursos.png" alt=""></div><p class="cap" style="margin-top:2mm">Mis recursos</p></div>
+      <div><div class="phone"><img src="img/m-c-priv.png" alt=""></div><p class="cap">Privacidad</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Los datos de la demo son de ejemplo.</span><span>Brújula Ciudadana · Naowee</span></div>
+</section>
+
+</body>
+</html>

@@ -3,5 +3,8 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": { "dev": "python3 -m http.server 8781" }
+  "scripts": {
+    "dev": "PORT=8781 node scripts/dev.mjs",
+    "registrar": "node scripts/registrar.mjs"
+  }
 }

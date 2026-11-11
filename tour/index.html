@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Brújula Ciudadana · Recorrido</title>
+<link rel="stylesheet" href="../shared/base.css">
+<link rel="stylesheet" href="../app/brujula/_sdk/css/fuentes.css">
+<link rel="stylesheet" href="tour.css">
+</head>
+<body class="tr">
+<header class="tr-top">
+  <img src="../shared/logos/naowee.svg" alt="Naowee" height="24">
+  <span class="tr-top__t">Brújula Ciudadana · Recorrido</span>
+  <a class="tr-salir" href="../index.html">Salir</a>
+</header>
+<main class="tr-main">
+  <section class="tr-card" id="trCard" aria-live="polite">
+    <span class="tr-rol" id="trRol"></span>
+    <h1 id="trTitulo"></h1>
+    <p id="trTexto"></p>
+    <span class="tr-cnt" id="trCnt"></span>
+  </section>
+  <section class="tr-stage" id="trStage">
+    <div class="tr-dev tr-dev--movil" id="trDev">
+      <div class="tr-screen" id="trScreen"><iframe id="trFrame" title="Vista de la demo"></iframe></div>
+      <div class="tr-ring" id="trRing" hidden></div>
+    </div>
+    <div class="tr-hero" id="trHero" hidden>
+      <p class="tr-hero__rol" id="trHeroRol"></p>
+      <h2 id="trHeroTitulo"></h2>
+      <p id="trHeroTexto"></p>
+      <a class="tr-cta" id="trCta" href="../index.html" hidden>Probar la demo</a>
+    </div>
+  </section>
+</main>
+<footer class="tr-ctl">
+  <div class="tr-btns">
+    <button type="button" id="trPrev" aria-label="Anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <button type="button" id="trPlay" class="tr-play" aria-label="Pausar">
+      <svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+      <svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5l11 7-11 7z"/></svg>
+    </button>
+    <button type="button" id="trNext" aria-label="Siguiente"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+  </div>
+  <ol class="tr-prog" id="trProg"></ol>
+  <span class="tr-help">Espacio: pausa · ← → : escenas</span>
+</footer>
+<script src="escenas.js"></script><script src="tour.js"></script>
+</body>
+</html>

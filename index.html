@@ -3,39 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Demo web · Naowee</title>
+<title>Brújula Ciudadana · Concepto · Naowee</title>
 <link rel="stylesheet" href="shared/base.css">
-<link rel="stylesheet" href="web.css">
+<style>
+main{max-width:1000px;margin:0 auto;padding:clamp(24px,6vw,64px) 16px}
+h1{font-size:clamp(26px,4vw,38px);margin:0 0 8px}
+p.lead{color:var(--mut);margin:0 0 32px;max-width:62ch}
+.opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.opt{display:flex;flex-direction:column;gap:10px;padding:22px;border:1.5px solid var(--line);border-radius:var(--r);background:#fff;color:inherit;text-decoration:none;min-height:230px}
+.opt:hover{border-color:var(--v);box-shadow:0 8px 28px rgba(74,42,128,.14)}
+.opt svg{width:40px;height:40px;color:var(--v)}
+.opt h2{margin:0;font-size:20px}
+.opt p{margin:0;color:var(--mut);font-size:14px}
+.opt ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px}
+.opt .tag{margin-top:auto;align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:999px;padding:4px 10px;background:var(--bg);color:var(--ink)}
+.opt .tag.w{color:var(--warn);background:#FFE7B3}
+.tour{display:flex;align-items:center;gap:18px;margin:0 0 14px;padding:18px 22px;border-radius:var(--r);background:#16172B;color:#fff;text-decoration:none;border:1.5px solid #16172B;position:relative;overflow:hidden}
+.tour::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#FF9A5C}
+.tour:hover{box-shadow:0 8px 28px rgba(22,23,43,.35);border-color:#FF9A5C}
+.tour:focus-visible{outline:3px solid #FF9A5C;outline-offset:3px}
+.tour .play{flex:none;width:52px;height:52px;border-radius:50%;background:#FF9A5C;color:#16172B;display:grid;place-items:center}
+.tour .play svg{width:24px;height:24px;margin-left:3px}
+.tour .txt{flex:1;min-width:0}
+.tour .kick{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#FF9A5C;margin-bottom:4px}
+.tour h2{margin:0 0 2px;font-size:20px}
+.tour p{margin:0;font-size:14px;color:#D9DAE8}
+@media(max-width:520px){.tour{align-items:flex-start;padding:16px 16px 16px 20px;gap:14px}.tour .play{width:44px;height:44px}}
+.pie{margin-top:28px;font-size:13px;color:var(--mut)}
+</style>
 </head>
 <body>
-<iframe class="stage" id="stage" title="Diseño"></iframe>
-<div class="vacio" id="vacio" hidden>
-  <h1>Aún no hay demos web</h1>
-  
-</div>
-
-<button type="button" class="tt-launch" id="launch" aria-haspopup="dialog" aria-expanded="false">
-  <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="17" x2="20" y2="17"/><circle cx="9" cy="7" r="2.2" fill="currentColor"/><circle cx="15" cy="17" r="2.2" fill="currentColor"/></svg>
-  Configuraciones
-</button>
-
-<aside class="tt-panel" id="panel" role="dialog" aria-label="Configuraciones de la demo">
-  <div class="tt-h"><span id="titulo">Demo web</span>
-    <span>
-      <button type="button" class="tt-ib" id="compact" title="Compactar la UI al espacio disponible" aria-label="Compactar la UI" aria-pressed="false"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8V4h4M20 8V4h-4M4 16v4h4M20 16v4h-4"/><path d="m9 9 6 6M15 9l-6 6"/></svg></button>
-      <button type="button" class="tt-ib" id="close" aria-label="Cerrar">×</button>
-    </span></div>
-  <div id="gApp"><div class="tt-grp">Demo</div>
-    <label class="sr" for="appSel">Demo</label><select id="appSel" class="tt-sel"></select></div>
-  <div id="gRol" hidden><div class="tt-grp">Ver como</div><div class="tt-roles" role="group" aria-label="Rol" id="segRol"></div></div>
-  <div id="gEsc" hidden><div class="tt-grp">Escenario</div><div class="tt-seg" role="group" aria-label="Escenario" id="segEsc"></div></div>
-  <div class="tt-grp">Datos</div>
-  <button type="button" class="tt-reset" id="reset">Restablecer datos de la demo</button>
-  <p class="tt-note">Al cambiar de rol se conserva dónde estás si ese rol puede verlo. Lo que crees queda en este navegador.</p>
-  <a class="tt-link" id="solo" target="_blank" rel="noopener">Abrir este prototipo solo →</a>
-</aside>
-
-<script src="apps/index.js"></script>
-<script src="web.js"></script>
+<main>
+  <img src="shared/logos/naowee.svg" alt="Naowee" width="127" height="24" style="display:block;margin-bottom:32px">
+  <h1>Brújula Ciudadana · ¿Con qué rol entras?</h1>
+  <p class="lead">Cada rol entra con su propia sesión y solo ve lo que le toca. Dentro de cada demo puedes cambiar entre móvil y escritorio. Los datos son de ejemplo.</p>
+  <a class="tour" id="recorrido" href="tour/index.html">
+    <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>
+    <span class="txt"><span class="kick">Recorrido guiado</span><h2>Ver el recorrido</h2><p>Dos minutos para entender cómo se conectan las personas, los conectores y las entidades</p></span>
+  </a>
+  <div class="opts">
+    <a class="opt" href="demo/?app=ciudadano" id="rol-ciudadano">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+      <h2>Ciudadano</h2>
+      <ul><li>Registrarme</li><li>Mi expediente y mis recursos</li><li>Privacidad: quién vio mis datos</li></ul>
+      <span class="tag w">Decisión nueva</span>
+    </a>
+    <a class="opt" href="demo/?app=conector&sup=movil" id="rol-conector">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 1 1-3-3l2.8-2.8a5 5 0 0 1 6 0l.8.6"/><path d="m21 3 1 11h-2M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3M3 4h8"/></svg>
+      <h2>Conector</h2>
+      <ul><li>Mis personas</li><li>Registrar a una persona</li><li>Ficha, derivación y recursos de la red</li></ul>
+      <span class="tag">MVP</span>
+    </a>
+    <a class="opt" href="demo/?app=entidad" id="rol-entidad">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>
+      <h2>Entidad</h2>
+      <ul><li>Resumen y bandeja</li><li>Personas y su uso en otras entidades</li><li>Conectores</li><li>Mis recursos: lo que ofrece y su gestión</li></ul>
+      <span class="tag">Solo la entidad lo ve</span>
+    </a>
+    <a class="opt" href="demo/?app=alta-entidad" id="rol-alta">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 18v-6M9 15h6"/></svg>
+      <h2>Registro de entidad</h2>
+      <p>Formulario para dar de alta una entidad en la red.</p>
+      <span class="tag w">Admin Only</span>
+    </a>
+  </div>
+  <p class="pie">Para ver cómo se conectan: registra a alguien como Ciudadano o Conector y después entra como Entidad, sin restablecer los datos.</p>
+</main>
 </body>
 </html>

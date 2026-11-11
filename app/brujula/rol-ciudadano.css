@@ -1,0 +1,248 @@
+/* Rol Ciudadano: look de app nativa (bloques oscuros, fichas redondas, un solo botón por pantalla). */
+body.rol-ciudadano .bc-top{display:none}
+body.rol-ciudadano .bc-page.cz-pg{max-width:600px;display:flex;flex-direction:column;gap:16px}
+body.rol-ciudadano .cz-pg h1{font-size:30px;line-height:1.1;font-weight:700;letter-spacing:-.02em}
+body.rol-ciudadano .cz-pg h2{font-size:17px;line-height:1.3;font-weight:600}
+@media (max-width:820px){body.rol-ciudadano .bc-page.cz-pg{padding:24px 20px 112px}}
+body.rol-ciudadano:has(.cz-wiz) .bc-tabbar,body.rol-ciudadano:has(.cz-bienv) .bc-tabbar{display:none}
+/* Botón principal: grande y redondo, a todo el ancho. */
+body.rol-ciudadano .cz-pie .nwt-button,body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=loud]{width:100%;min-height:56px;font-size:17px;font-weight:600}
+body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=quiet]{width:100%;min-height:48px;font-size:15px;font-weight:600;color:var(--bc-ink)}
+body.rol-ciudadano .cz-card{background:var(--bc-surface);border-radius:24px;padding:18px}
+
+/* ── Bienvenida ── */
+body.rol-ciudadano .cz-bienv{width:100%;max-width:440px;margin:0 auto;height:calc(100dvh - var(--bc-safe-top,0px) - var(--bc-safe-bot,0px));min-height:0;overflow:hidden;display:flex;flex-direction:column;background:var(--bc-bg)}
+html:has(.cz-bienv){overflow:hidden}
+body.rol-ciudadano .cz-hero{position:relative;overflow:hidden;flex:0 1 40%;min-height:210px;display:flex;flex-direction:column;background:var(--bc-dark);color:#fff;border-radius:0 0 36px 36px;padding:24px 24px 32px;gap:24px}
+body.rol-ciudadano .cz-marca{position:relative;display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
+body.rol-ciudadano .cz-hero .nwt-icon{font-size:22px;color:#FF9A5C}
+body.rol-ciudadano .cz-brujula{position:absolute;right:-90px;top:-40px;pointer-events:none}
+body.rol-ciudadano .cz-hero h1{position:relative;margin-top:auto;font-size:36px;line-height:1.05;letter-spacing:-.03em;color:#fff}
+body.rol-ciudadano .cz-hero h1 span{color:#FF9A5C}
+body.rol-ciudadano .cz-pasos{list-style:none;margin:0;padding:0 24px;display:flex;flex-direction:column;gap:4px;flex:1}
+body.rol-ciudadano .cz-pasos li{display:flex;align-items:center;gap:14px}
+body.rol-ciudadano .cz-pasos b{flex:1;font-size:16px;font-weight:600}
+body.rol-ciudadano .cz-pasos li > span:last-child{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-pi{width:44px;height:44px;border-radius:14px;background:var(--bc-surface);color:var(--bc-acc);display:flex;align-items:center;justify-content:center;flex:none}
+body.rol-ciudadano .cz-pi .nwt-icon{font-size:22px}
+body.rol-ciudadano .cz-cta{padding:8px 24px 24px;display:flex;flex-direction:column;gap:6px}
+body.rol-ciudadano .cz-lock{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-lock .nwt-icon{font-size:14px}
+@media (min-width:821px){html:has(.cz-bienv){overflow:auto}body.rol-ciudadano .cz-bienv{height:auto;min-height:0;margin:40px auto;border-radius:36px;overflow:hidden;box-shadow:0 10px 40px rgba(22,23,43,.12)}}
+
+/* ── Asistente ── */
+body.rol-ciudadano .cz-wiz{gap:0}
+body.rol-ciudadano .bc-page.cz-wiz{padding-bottom:0;min-height:calc(100dvh - var(--bc-safe-top,0px) - var(--bc-safe-bot,0px))}
+body.rol-ciudadano .cz-cab{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+body.rol-ciudadano .cz-cab .cz-prog{order:3;flex:1 0 100%}
+body.rol-ciudadano .cz-cab:not(.cz-cab--t) .cz-prog{order:0;flex:1 1 0}
+body.rol-ciudadano .cz-cab:not(.cz-cab--t) .cz-pn{order:1}
+body.rol-ciudadano .cz-tit{flex:1;margin:0;font-size:20px;line-height:1.2;letter-spacing:-.01em}
+body.rol-ciudadano .cz-pasos-t{margin:0;padding:24px 24px 0;font-size:13px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--bc-mut)}
+body.rol-ciudadano .cz-atras{width:44px;height:44px;border-radius:22px;background:var(--bc-surface);display:flex;align-items:center;justify-content:center;color:var(--bc-ink)!important;text-decoration:none}
+body.rol-ciudadano .cz-atras .nwt-icon{font-size:20px}
+body.rol-ciudadano .cz-prog{flex:1;display:flex;gap:4px}
+body.rol-ciudadano .cz-prog i{flex:1;height:4px;border-radius:2px;background:#DADCE5}
+body.rol-ciudadano .cz-prog i.on{background:var(--bc-acc)}
+body.rol-ciudadano .cz-pn{font-size:13px;font-weight:600;color:var(--bc-mut)}
+body.rol-ciudadano .cz-cuerpo{display:flex;flex-direction:column;gap:18px;padding:24px 0 24px;flex:1}
+body.rol-ciudadano .cz-ico{width:56px;height:56px;border-radius:18px;background:var(--bc-acc-soft);color:var(--bc-acc);display:flex;align-items:center;justify-content:center}
+body.rol-ciudadano .cz-ico .nwt-icon{font-size:28px}
+body.rol-ciudadano .cz-cuerpo .bc-ejemplo{margin:-6px 0 0}
+body.rol-ciudadano .cz-pie{position:sticky;bottom:0;display:flex;flex-direction:column;gap:10px;padding:14px 0 24px;background:linear-gradient(to bottom,rgba(242,243,247,0),var(--bc-bg) 28%)}
+body.rol-ciudadano .cz-plazo{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:#93370D}
+body.rol-ciudadano .cz-plazo .nwt-icon{font-size:16px}
+body.rol-ciudadano .cz-nota{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-nota .nwt-icon{font-size:16px}
+
+/* Permisos: la casilla del SDK se dibuja como interruptor. */
+body.rol-ciudadano .cz-perm{padding:4px 18px}
+body.rol-ciudadano .cz-perm .bc-opt{display:flex;align-items:center;min-height:72px;padding:0;border:0;border-radius:0;background:none;cursor:pointer}
+body.rol-ciudadano .cz-perm .bc-opt + .bc-opt{border-top:1px solid var(--bc-line)}
+body.rol-ciudadano .cz-perm .bc-opt.on{background:none}
+body.rol-ciudadano .cz-perm .nwt-checkbox{width:100%;flex-direction:row-reverse;align-items:center;justify-content:space-between;gap:14px;padding:0}
+body.rol-ciudadano .cz-perm .nwt-checkbox__label{flex:1;display:flex;flex-direction:column;gap:2px;margin:0}
+body.rol-ciudadano .cz-pt{font-size:16px;font-weight:600;color:var(--bc-ink)}
+body.rol-ciudadano .cz-ps{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-ps.req{color:#B42318;font-weight:600}
+body.rol-ciudadano .cz-perm .nwt-checkbox__control{position:relative;flex:none;width:52px;height:30px;border:0;border-radius:15px;background:#C9CBD6;transition:background .2s}
+body.rol-ciudadano .cz-perm .nwt-checkbox__control .nwt-icon{display:none}
+body.rol-ciudadano .cz-perm .nwt-checkbox__control::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+body.rol-ciudadano .cz-perm .nwt-checkbox--checked .nwt-checkbox__control{background:var(--bc-acc)}
+body.rol-ciudadano .cz-perm .nwt-checkbox--checked .nwt-checkbox__control::after{transform:translateX(22px)}
+
+/* Datos: campos rellenos en gris, sin caja. */
+body.rol-ciudadano .cz-datos{display:flex;flex-direction:column;gap:12px}
+body.rol-ciudadano .cz-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+body.rol-ciudadano .cz-datos .nwt-input-box__content{gap:0}
+body.rol-ciudadano .cz-datos .nwt-input-box{--pvt-input-box-border:0}
+body.rol-ciudadano .cz-datos .nwt-input-box__content{background:var(--bc-inset);border-radius:14px;padding:10px 14px;border:0;box-shadow:none}
+body.rol-ciudadano .cz-datos .nwt-input-box--error .nwt-input-box__content{background:#FFF4F3;box-shadow:inset 0 0 0 2px var(--bc-r)}
+body.rol-ciudadano .cz-datos .nwt-input-box__label{position:static;transform:none;font-size:12px;color:var(--bc-mut);padding:0}
+body.rol-ciudadano .cz-datos .nwt-input-box--error .nwt-input-box__label{color:#B42318;font-weight:600}
+body.rol-ciudadano .cz-datos .nwt-input-box__control{padding:0;min-height:0}
+body.rol-ciudadano .cz-datos input,body.rol-ciudadano .cz-datos select{border:0;outline:0;background:transparent;font:inherit;font-weight:600;font-size:16px;color:var(--bc-ink);padding:0;min-width:0;min-height:28px;width:100%}
+body.rol-ciudadano .cz-datos .nwt-input-box__message{font-size:12px;margin-top:4px}
+body.rol-ciudadano .cz-grupo{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+body.rol-ciudadano .cz-gl{font-size:18px;font-weight:600}
+body.rol-ciudadano .cz-err{font-size:13px;color:#B42318}
+body.rol-ciudadano .cz-seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:4px;padding:4px;border-radius:16px;background:#E6E7EE}
+body.rol-ciudadano .cz-seg-o{min-height:44px;border:0;border-radius:12px;background:transparent;font:inherit;font-size:14px;font-weight:600;color:#4A4D63;cursor:pointer}
+body.rol-ciudadano .cz-seg-o[aria-checked=true]{background:var(--bc-surface);color:var(--bc-ink);box-shadow:0 1px 3px rgba(22,23,43,.1)}
+body.rol-ciudadano .cz-fichas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+body.rol-ciudadano .cz-fichas-o{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;min-height:72px;border:2px solid transparent;border-radius:16px;background:var(--bc-surface);font:inherit;font-size:13px;font-weight:600;color:#4A4D63;cursor:pointer}
+body.rol-ciudadano .cz-fichas-o .nwt-icon{font-size:22px}
+body.rol-ciudadano .cz-fichas-o[aria-checked=true]{background:var(--bc-acc-soft);border-color:var(--bc-acc);color:var(--bc-acc)}
+body.rol-ciudadano .cz-chips{display:flex;flex-wrap:wrap;gap:8px}
+body.rol-ciudadano .cz-chips-o{min-height:44px;padding:0 16px;border:0;border-radius:22px;background:var(--bc-surface);font:inherit;font-size:14px;font-weight:600;color:#4A4D63;cursor:pointer}
+body.rol-ciudadano .cz-chips-o[aria-checked=true]{background:var(--bc-ink);color:#fff}
+
+/* Mapa de Vida (registro): una tarjeta por pregunta. */
+body.rol-ciudadano .cz-qs{display:flex;flex-direction:column;gap:14px}
+body.rol-ciudadano .bc-dim.cz-q,body.rol-ciudadano .bc-dim.cz-q + .bc-dim.cz-q{margin:0;padding:18px;border:0;border-radius:24px;background:var(--bc-surface);display:flex;flex-direction:column;gap:14px}
+body.rol-ciudadano .cz-qh{display:flex;align-items:center;gap:14px}
+body.rol-ciudadano .cz-qi{width:56px;height:56px;border-radius:28px;flex:none;background:var(--bc-acc-soft);color:var(--bc-acc);display:flex;align-items:center;justify-content:center}
+body.rol-ciudadano .cz-qi .nwt-icon{font-size:26px}
+body.rol-ciudadano .cz-qk{display:block;font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--bc-mut)}
+body.rol-ciudadano .cz-q h2{font-size:19px;line-height:1.2;letter-spacing:-.01em}
+body.rol-ciudadano .cz-qo{display:flex;flex-direction:column;gap:8px}
+body.rol-ciudadano .cz-q .bc-opt{min-height:56px;padding:0 16px;display:flex;align-items:center;border-radius:18px;border:2px solid transparent}
+body.rol-ciudadano .cz-q .bc-opt.on{background:var(--bc-surface);border-color:var(--bc-acc);box-shadow:0 6px 20px rgba(194,65,12,.12)}
+body.rol-ciudadano .cz-q .nwt-radio-button{width:100%;align-items:center;flex-direction:row-reverse;justify-content:space-between;gap:12px}
+body.rol-ciudadano .cz-q .nwt-radio-button__label{flex:1;display:flex;align-items:center;gap:12px;font-weight:600;font-size:15px;line-height:1.25}
+body.rol-ciudadano .cz-dot{display:inline-block;flex:none;width:12px;height:12px;border-radius:6px;background:#C9CBD6}
+body.rol-ciudadano .cz-dot.cz-v{background:var(--bc-v)}
+body.rol-ciudadano .cz-dot.cz-a{background:var(--bc-a)}
+body.rol-ciudadano .cz-dot.cz-r{background:var(--bc-r)}
+
+/* Entidad: mini-mapa y lista. */
+body.rol-ciudadano .cz-map{position:relative;height:168px;border-radius:24px;background:#E4E7EE;overflow:hidden}
+body.rol-ciudadano .cz-map svg{position:absolute;inset:0;width:100%;height:100%}
+body.rol-ciudadano .cz-pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border:3px solid #fff;border-radius:50%;background:var(--bc-dark);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+body.rol-ciudadano .cz-pin.on{background:var(--bc-acc);transform:scale(1.15)}
+body.rol-ciudadano .cz-ents{display:flex;flex-direction:column;gap:10px}
+body.rol-ciudadano .cz-ent{display:flex;align-items:center;gap:14px;min-height:68px;padding:0 16px;border:2px solid transparent;border-radius:20px;background:var(--bc-surface);font:inherit;color:var(--bc-ink);text-align:left;cursor:pointer}
+body.rol-ciudadano .cz-ent[aria-checked=true]{border-color:var(--bc-acc)}
+body.rol-ciudadano .cz-en{width:32px;height:32px;border-radius:16px;flex:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;background:var(--bc-bg)}
+body.rol-ciudadano .cz-ent[aria-checked=true] .cz-en{background:var(--bc-acc);color:#fff}
+body.rol-ciudadano .cz-et{display:flex;flex-direction:column;gap:2px}
+body.rol-ciudadano .cz-et b{font-size:16px;font-weight:600}
+body.rol-ciudadano .cz-et span{font-size:13px;color:var(--bc-mut)}
+
+/* ── Mi expediente ── */
+body.rol-ciudadano .cz-hola{display:flex;align-items:center;justify-content:space-between}
+body.rol-ciudadano .cz-hola span{font-size:14px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-me{display:flex;text-decoration:none}
+body.rol-ciudadano .cz-dark{background:var(--bc-dark);color:#fff;border-radius:28px;padding:20px;display:flex;flex-direction:column;gap:18px}
+body.rol-ciudadano .cz-cn{display:flex;align-items:center;gap:12px}
+body.rol-ciudadano .cz-cn b{display:block;font-size:18px;font-weight:600}
+body.rol-ciudadano .cz-k{display:block;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#B8BACB}
+body.rol-ciudadano .cz-dark .nwt-avatar{--pvt-avatar-background:#2B2D45}
+body.rol-ciudadano .cz-rb{width:44px;height:44px;flex:none;border:0;border-radius:22px;background:#2B2D45;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+body.rol-ciudadano .cz-rb.acc{background:var(--bc-acc)}
+body.rol-ciudadano .cz-rb .nwt-icon{font-size:20px;color:#fff}
+body.rol-ciudadano .cz-pr{display:flex;align-items:center;gap:12px;padding:14px;border-radius:18px;background:#23253C}
+body.rol-ciudadano .cz-pr .cz-pi{background:#2B2D45;color:#FF9A5C}
+body.rol-ciudadano .cz-pr b{display:block;font-size:15px;font-weight:600}
+body.rol-ciudadano .cz-pr .grow > span{display:block;font-size:13px;color:#B8BACB}
+body.rol-ciudadano .cz-ring{display:flex;align-items:center;gap:16px;padding:18px;border-radius:24px;background:var(--bc-surface);color:var(--bc-ink)!important;text-decoration:none}
+body.rol-ciudadano .cz-ring > .nwt-icon{color:#8A8CA0;font-size:20px}
+body.rol-ciudadano .cz-ring b{font-size:16px;font-weight:600}
+body.rol-ciudadano .cz-ring circle{fill:none;stroke-width:10}
+body.rol-ciudadano .cz-pista{stroke:#E6E7EE}
+body.rol-ciudadano .cz-sv.v{stroke:var(--bc-v)}body.rol-ciudadano .cz-sv.a{stroke:var(--bc-a)}body.rol-ciudadano .cz-sv.r{stroke:var(--bc-r)}
+body.rol-ciudadano .cz-cuentas{display:flex;gap:12px;margin-top:6px;font-size:13px;color:#4A4D63}
+body.rol-ciudadano .cz-cuentas b{font-size:13px}
+body.rol-ciudadano .cz-cuentas b.r{color:#B42318}body.rol-ciudadano .cz-cuentas b.a{color:#93370D}body.rol-ciudadano .cz-cuentas b.v{color:#067647}
+body.rol-ciudadano .cz-sh{display:flex;align-items:baseline;justify-content:space-between}
+body.rol-ciudadano .cz-sh a{font-size:14px;font-weight:600;text-decoration:none;color:var(--bc-acc)}
+body.rol-ciudadano .cz-minis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+body.rol-ciudadano .cz-mini{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:14px;border-radius:20px;background:var(--bc-surface)}
+body.rol-ciudadano .cz-mini b{font-size:14px;font-weight:600;line-height:1.2;flex:1}
+body.rol-ciudadano .cz-ri{width:36px;height:36px;border-radius:12px;flex:none;display:flex;align-items:center;justify-content:center;background:var(--bc-acc-soft);color:var(--bc-acc)}
+body.rol-ciudadano .cz-ri .nwt-icon{font-size:18px}
+body.rol-ciudadano .cz-e-v .cz-ri{background:#E7F6EE;color:#067647}
+body.rol-ciudadano .cz-e-b .cz-ri{background:#E8EEFA;color:#1D4ED8}
+body.rol-ciudadano .cz-e-r .cz-ri{background:#FDE3E1;color:#B42318}
+body.rol-ciudadano .cz-vacio{font-size:14px;color:var(--bc-mut)}
+
+/* ── Mis recursos ── */
+body.rol-ciudadano .cz-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;padding:4px;border-radius:16px;background:#E6E7EE}
+body.rol-ciudadano .cz-tabs button{min-height:44px;border:0;border-radius:12px;background:transparent;font:inherit;font-size:14px;font-weight:600;color:#4A4D63;cursor:pointer}
+body.rol-ciudadano .cz-tabs button[aria-selected=true]{background:var(--bc-surface);color:var(--bc-ink);box-shadow:0 1px 3px rgba(22,23,43,.1)}
+body.rol-ciudadano .cz-lista{display:flex;flex-direction:column;gap:12px}
+body.rol-ciudadano .cz-rec{display:flex;flex-direction:column;gap:16px;padding:18px;border-radius:24px;background:var(--bc-surface)}
+body.rol-ciudadano .cz-rh{display:flex;align-items:center;gap:12px}
+body.rol-ciudadano .cz-rh .cz-ri{width:48px;height:48px;border-radius:16px}
+body.rol-ciudadano .cz-rh .cz-ri .nwt-icon{font-size:22px}
+body.rol-ciudadano .cz-rh b{display:block;font-size:16px;font-weight:600}
+body.rol-ciudadano .cz-rh .grow > span{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-etapas{display:flex;flex-direction:column;gap:8px}
+body.rol-ciudadano .cz-barra{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+body.rol-ciudadano .cz-barra i{height:6px;border-radius:3px;background:var(--bc-a)}
+body.rol-ciudadano .cz-e-v .cz-barra i{background:var(--bc-v)}
+body.rol-ciudadano .cz-e-b .cz-barra i{background:#5B8DEF}
+body.rol-ciudadano .cz-e-r .cz-barra i{background:var(--bc-r)}
+body.rol-ciudadano .cz-barra i.off{background:#E6E7EE}
+body.rol-ciudadano .cz-et3{display:flex;justify-content:space-between;font-size:12px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-et3 .fin{font-weight:700;color:#067647}
+body.rol-ciudadano .cz-e-r .cz-et3 .fin{color:#B42318}
+body.rol-ciudadano .cz-mot{font-size:13px;color:var(--bc-mut)}
+
+/* ── Mapa de Vida ── */
+body.rol-ciudadano .cz-chips-r{display:flex;flex-wrap:wrap;gap:8px}
+body.rol-ciudadano .cz-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--bc-surface);font-size:13px;font-weight:600}
+body.rol-ciudadano .cz-bl{display:flex;flex-direction:column;gap:8px}
+body.rol-ciudadano .cz-bl h2{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bc-mut)}
+body.rol-ciudadano .cz-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+body.rol-ciudadano .cz-tile{aspect-ratio:1;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center}
+body.rol-ciudadano .cz-tile .nwt-icon{font-size:22px}
+body.rol-ciudadano .cz-tile span{font-size:12px;font-weight:600;line-height:1.15}
+body.rol-ciudadano .cz-tile.cz-r{background:#FDE3E1;color:#B42318}
+body.rol-ciudadano .cz-tile.cz-a{background:#FEF0C7;color:#93370D}
+body.rol-ciudadano .cz-tile.cz-v{background:#DCFAE6;color:#067647}
+body.rol-ciudadano .cz-tile.cz-n{background:#E6E7EE;color:#4A4D63}
+body.rol-ciudadano .cz-tile .nwt-icon{color:inherit}
+
+/* ── Privacidad ── */
+body.rol-ciudadano .cz-stack{display:flex;flex-direction:column;gap:16px}
+body.rol-ciudadano .cz-g{font-size:17px;font-weight:600}
+body.rol-ciudadano .cz-sub{display:block;margin-top:2px;font-size:13px;color:#B8BACB}
+body.rol-ciudadano .cz-sub.on{color:#9BE7BE}
+body.rol-ciudadano .cz-sw{position:relative;flex:none;width:56px;height:44px;border:0;background:none;padding:0;cursor:pointer}
+body.rol-ciudadano .cz-sw i{position:absolute;left:0;top:6px;width:56px;height:32px;border-radius:16px;background:#C9CBD6;transition:background .2s}
+body.rol-ciudadano .cz-sw i::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+body.rol-ciudadano .cz-sw[aria-checked=true] i{background:var(--bc-v)}
+body.rol-ciudadano .cz-sw[aria-checked=true] i::after{transform:translateX(24px)}
+body.rol-ciudadano .cz-dark .cz-sw i{background:#4A4D6A}
+body.rol-ciudadano .cz-dark .cz-sw[aria-checked=true] i{background:var(--bc-v)}
+body.rol-ciudadano .cz-cadena{display:flex;align-items:center;justify-content:center;padding:6px 0}
+body.rol-ciudadano .cz-lin{width:26px;border-top:2px dashed #6B6E85}
+body.rol-ciudadano .cz-lin.off{border-top-color:#33354F}
+body.rol-ciudadano .cz-nodo.off{opacity:.35}
+body.rol-ciudadano .cz-aviso{display:flex;align-items:center;gap:12px}
+body.rol-ciudadano .cz-aviso b{display:block;font-size:16px;font-weight:600}
+body.rol-ciudadano .cz-aviso .grow > span{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-accesos{display:flex;flex-direction:column;gap:4px}
+body.rol-ciudadano .cz-accesos h2{display:flex;align-items:center;gap:8px;font-size:16px;padding-bottom:6px}
+body.rol-ciudadano .cz-accesos h2 .nwt-icon{font-size:18px}
+body.rol-ciudadano .cz-ac{display:flex;align-items:center;gap:12px;padding:10px 0}
+body.rol-ciudadano .cz-ac + .cz-ac{border-top:1px solid var(--bc-line)}
+body.rol-ciudadano .cz-ac b{display:block;font-size:15px;font-weight:600}
+body.rol-ciudadano .cz-ac .grow > span{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-ac time{font-size:12px;color:var(--bc-mut);white-space:nowrap}
+body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=quiet]{--pvt-button-background:transparent;--pvt-button-background-hover:rgba(22,23,43,.05);background:transparent}
+body.rol-ciudadano .cz-perm .nwt-checkbox__control{outline:0;box-shadow:none}
+body.rol-ciudadano .cz-datos input,body.rol-ciudadano .cz-datos select{border:0!important;box-shadow:none!important;background:transparent!important;border-radius:0!important;padding:0!important;outline:0}
+body.rol-ciudadano .cz-datos .nwt-input-box__control,body.rol-ciudadano .cz-datos .nwt-input-box__content{border:0}
+/* El SDK pinta el texto del avatar con el color del tono: sobre fondo oscuro o muy claro no llega a 4.5:1. */
+body.rol-ciudadano .cz-dark .nwt-avatar,body.rol-ciudadano .cz-dark .nwt-avatar *{color:#fff}
+body.rol-ciudadano .cz-me .nwt-avatar *{color:#9A3412}
+body.rol-ciudadano .cz-ac .nwt-avatar *{color:var(--bc-ink)}
+body.rol-ciudadano .cz-datos .nwt-input-box__control,body.rol-ciudadano .cz-datos .nwt-input-box__control *{background:transparent!important;box-shadow:none!important}
+
+/* «¿Cómo estás hoy?»: una pregunta por pantalla (doc 04), respuestas grandes para tocar con el pulgar. */
+body.rol-ciudadano .cz-qk .cz-qn{float:right;font-weight:700;color:var(--bc-ink);letter-spacing:0}
+body.rol-ciudadano .bc-dim.cz-q1{padding:0;background:none;border-radius:0}
+body.rol-ciudadano .cz-q1 .cz-qo{display:flex;flex-direction:column;gap:10px}
+body.rol-ciudadano .cz-q1 .bc-opt{min-height:64px;display:flex;align-items:center;border-radius:20px;background:var(--bc-surface);font-size:16px;font-weight:600}

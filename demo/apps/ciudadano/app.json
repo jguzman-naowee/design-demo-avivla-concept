@@ -1,0 +1,6 @@
+{
+  "nombre": "Ciudadano",
+  "subtitulo": "Brújula Ciudadana",
+  "inicio": "../../../app/brujula/index.html?rol=ciudadano",
+  "superficie": "movil"
+}
