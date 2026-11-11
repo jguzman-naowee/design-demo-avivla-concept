@@ -13,7 +13,7 @@ body{font-family:-naotech-sdk-inter,system-ui,sans-serif;color:var(--ink);font-s
 h1,h2,h3,p,ul{margin:0}
 .pg{width:297mm;height:210mm;overflow:hidden;position:relative;background:var(--bg);padding:11mm 16mm 9mm;display:flex;flex-direction:column;gap:5mm;break-after:page;page-break-after:always}
 .pg:last-child{break-after:auto;page-break-after:auto}
-@media screen{.pg{margin:12px auto;box-shadow:0 6px 24px rgba(22,23,43,.18)}}
+@media screen{.pg{margin:12px auto}}
 .top{display:flex;align-items:center;justify-content:space-between;font-size:8.5pt;color:var(--mut);letter-spacing:.04em;text-transform:uppercase;font-weight:500}
 .brand{display:flex;align-items:center;gap:7px;color:var(--ink);font-weight:700;font-size:10pt;letter-spacing:0;text-transform:none}
 .brand i{width:16px;height:16px;border:2px solid var(--acc);border-radius:50%;display:inline-block;position:relative}
@@ -44,11 +44,11 @@ td b{display:block;font-size:10pt}
 .tag.o{background:#FFE7D6;color:#8A2D00}
 .tag.d{background:var(--ink);color:#fff}
 .shots{flex:.8;display:flex;gap:5mm;align-items:flex-end;justify-content:center;min-width:0}
-.phone{width:44mm;border-radius:7mm;background:#16172B;padding:1.6mm;box-shadow:0 5mm 10mm rgba(22,23,43,.25)}
+.phone{width:44mm;border-radius:7mm;background:#16172B;padding:1.6mm}
 .phone img{display:block;width:100%;border-radius:5.6mm}
 .phone.s{width:40mm;margin-bottom:8mm}
 .cap{font-size:7.5pt;color:var(--mut);text-align:center;margin-top:2mm}
-.win{border-radius:3mm;background:#fff;box-shadow:0 4mm 9mm rgba(22,23,43,.18);overflow:hidden}
+.win{border-radius:3mm;background:#fff;border:1px solid #D9DCE6;overflow:hidden}
 .win img{display:block;width:100%}
 /* p2 */
 .diag{flex:1;min-height:0;display:flex;gap:6mm;align-items:center}
@@ -68,7 +68,7 @@ td b{display:block;font-size:10pt}
 .step h3{font-size:11pt}
 .step .nl{font-size:9.6pt;line-height:1.45;color:#3B3D55}
 .step li{margin-bottom:.9mm}
-.step .win{width:53%;flex:none;align-self:center;border-radius:3mm;overflow:hidden;box-shadow:0 1.5mm 4mm rgba(22,23,43,.12)}
+.step .win{width:53%;flex:none;align-self:center;border-radius:3mm;overflow:hidden;border:1px solid #D9DCE6}
 .step .win img{width:100%;height:auto;display:block}
 .note{font-size:8pt;color:var(--mut)}
 .foot{display:flex;justify-content:space-between;font-size:7.5pt;color:var(--mut)}
