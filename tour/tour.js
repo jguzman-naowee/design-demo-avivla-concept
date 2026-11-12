@@ -11,7 +11,7 @@
   function $(id) { return document.getElementById(id); }
   var el = {
     card: $('trCard'), rol: $('trRol'), titulo: $('trTitulo'), texto: $('trTexto'), cnt: $('trCnt'),
-    stage: $('trStage'), dev: $('trDev'), screen: $('trScreen'), frame: $('trFrame'), ring: $('trRing'),
+    stage: $('trStage'), dev: $('trDev'), screen: $('trScreen'), frame: $('trFrame'),
     hero: $('trHero'), heroRol: $('trHeroRol'), heroTitulo: $('trHeroTitulo'), heroTexto: $('trHeroTexto'),
     cta: $('trCta'), prev: $('trPrev'), play: $('trPlay'), next: $('trNext'), prog: $('trProg')
   };
@@ -47,29 +47,6 @@
     el.dev.style.setProperty('--k', String(S.k));
   }
 
-  /* Anillo sobre el elemento resaltado */
-  function anillo(sel) {
-    el.ring.hidden = true;
-    if (!sel) return;
-    try {
-      var doc = el.frame.contentDocument;
-      var t = doc && doc.querySelector(sel);
-      if (!t) return;
-      var r = t.getBoundingClientRect();
-      var x0 = Math.max(0, r.left), y0 = Math.max(0, r.top);
-      var x1 = Math.min(el.frame.clientWidth, r.right), y1 = Math.min(el.frame.clientHeight, r.bottom);
-      if (x1 - x0 < 2 || y1 - y0 < 2) return;
-      el.ring.hidden = false;
-      var fr = el.frame.getBoundingClientRect();
-      var esc = el.frame.clientWidth ? fr.width / el.frame.clientWidth : S.k;
-      var base = (el.ring.offsetParent || el.dev).getBoundingClientRect();
-      el.ring.style.left = (fr.left - base.left + x0 * esc) + 'px';
-      el.ring.style.top = (fr.top - base.top + y0 * esc) + 'px';
-      el.ring.style.width = ((x1 - x0) * esc) + 'px';
-      el.ring.style.height = ((y1 - y0) * esc) + 'px';
-    } catch (err) { el.ring.hidden = true; }
-  }
-
   /* Acciones dentro del iframe */
   function esperaMs(ms) { return new Promise(function (ok) { setTimeout(ok, ms); }); }
 
@@ -103,12 +80,13 @@
       } catch (err) { /* una acción fallida no corta la escena */ }
     }
     if (tok !== S.token) return;
-    if (e.resalta) {
-      await esperarSel(e.resalta, tok);
-      if (tok !== S.token) return;
-    }
-    anillo(e.resalta);
-    setTimeout(function () { if (tok === S.token) anillo(e.resalta); }, 450);
+    pintarBarras();
+    setTimeout(pintarBarras, 450);
+  }
+
+  /* La franja bajo la isla toma el color de lo que tiene debajo: se repinta cuando la vista ya cambió. */
+  function pintarBarras() {
+    try { var w = el.frame.contentWindow; if (w.__tintSafe) w.__tintSafe(); } catch (err) { /* sin acceso */ }
   }
 
   /* Temporizador de avance */
@@ -175,7 +153,6 @@
     el.prev.disabled = n === 0;
     el.next.disabled = n === ESC.length - 1;
     try { history.replaceState(null, '', '#' + (n + 1)); } catch (err) { /* sin historial */ }
-    el.ring.hidden = true;
 
     if (e.tipo === 'hero') {
       el.dev.hidden = true;
@@ -196,6 +173,7 @@
     S.sup = e.sup === 'escritorio' ? 'escritorio' : 'movil';
     el.dev.classList.toggle('tr-dev--movil', S.sup === 'movil');
     el.dev.classList.toggle('tr-dev--escritorio', S.sup === 'escritorio');
+    document.body.classList.toggle('tr--movil', S.sup === 'movil');
     ajustar();
 
     var u = String(e.url || '');
@@ -219,6 +197,12 @@
         raiz.style.setProperty('--bc-safe-top', movil ? '40px' : '0px');
         raiz.style.setProperty('--bc-safe-bot', movil ? '16px' : '0px');
         if (el.frame.contentWindow.__tintSafe) el.frame.contentWindow.__tintSafe();
+      } catch (err) { /* sin acceso */ }
+      /* El relleno de ejemplo es una ayuda de la demo: en el recorrido no se muestra. */
+      try {
+        var st = el.frame.contentDocument.createElement('style');
+        st.textContent = '.bc-ejemplo,div:has(> #ejemplo){display:none!important}';
+        el.frame.contentDocument.head.appendChild(st);
       } catch (err) { /* sin acceso */ }
       correr(e, tok).then(function () { listo(tok); }, function () { listo(tok); });
     }
@@ -252,7 +236,6 @@
 
   window.addEventListener('resize', function () {
     ajustar();
-    requestAnimationFrame(function () { var e = ESC[S.i]; if (e && e.tipo !== 'hero') anillo(e.resalta); });
   });
 
   function desdeHash() {

@@ -9,20 +9,22 @@
 .tr-salir{color:var(--tx);text-decoration:none;font-size:14px;min-height:44px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid #ffffff40;border-radius:999px}
 .tr-salir:hover{background:#ffffff14}
 .tr-main{display:grid;grid-template-columns:minmax(300px,400px) 1fr;gap:24px;padding:20px 28px;min-height:0}
-.tr-card{align-self:center;background:#fff;color:var(--ink,#282834);border-radius:20px;padding:28px;box-shadow:0 20px 50px #0006;display:flex;flex-direction:column;gap:12px;align-items:flex-start}
-.tr-rol{background:#FFE7D6;color:var(--or-d);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:5px 12px;border-radius:999px}
-.tr-card h1{margin:0;font-size:clamp(24px,2.6vw,34px);line-height:1.12;letter-spacing:-.01em}
-.tr-card p{margin:0;font-size:17px;line-height:1.5;color:#464660}
-.tr-cnt{font-size:13px;color:#646587;font-variant-numeric:tabular-nums;margin-top:4px}
+/* En móvil el teléfono es angosto: texto y pantalla se agrupan al centro en vez de separarse. */
+.tr--movil .tr-main{grid-template-columns:minmax(300px,420px) minmax(0,520px);justify-content:center;gap:16px}
+.tr-card{align-self:center;padding:8px 0;display:flex;flex-direction:column;gap:14px;align-items:flex-start}
+.tr-rol{color:var(--or);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.tr-card h1{margin:0;font-size:clamp(28px,3vw,42px);line-height:1.08;letter-spacing:-.02em}
+.tr-card p{margin:0;font-size:18px;line-height:1.5;color:var(--tx);opacity:.8}
+.tr-cnt{font-size:13px;color:var(--tx);opacity:.55;font-variant-numeric:tabular-nums;margin-top:4px}
 .tr-stage{position:relative;min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;padding:36px 14px 14px}
 .tr-dev{position:relative;width:calc(var(--w,390px) * var(--k,1));height:calc(var(--h,844px) * var(--k,1));flex:none}
 .tr-screen{position:absolute;left:0;top:0;width:var(--w,390px);height:var(--h,844px);transform:scale(var(--k,1));transform-origin:0 0;background:#fff;overflow:hidden}
 .tr-screen iframe{width:100%;height:100%;border:0;display:block;background:#fff}
-.tr-dev--movil .tr-screen{border-radius:44px;box-shadow:0 0 0 12px #0A0A14,0 0 0 14px #3a3c5e,0 30px 60px #0008}
+.tr-dev--movil .tr-screen{border-radius:44px;background:#0A0A14;box-shadow:0 0 0 12px #0A0A14,0 0 0 14px #3a3c5e,0 30px 60px #0008}
 .tr-dev--movil::after{content:"";position:absolute;left:50%;top:calc(10px * var(--k,1));width:calc(110px * var(--k,1));height:calc(30px * var(--k,1));transform:translateX(-50%);background:#0A0A14;border-radius:99px;z-index:2;pointer-events:none}
+.tr-dev--movil .tr-screen iframe{clip-path:inset(0 round 44px)}
 .tr-dev--escritorio .tr-screen{border-radius:0 0 10px 10px;box-shadow:0 0 0 1px #3a3c5e,0 30px 60px #0008}
 .tr-dev--escritorio::before{content:"";position:absolute;left:0;right:0;top:-34px;height:34px;border-radius:12px 12px 0 0;background:radial-gradient(circle 6px at 20px 17px,#FF5F57 98%,#0000),radial-gradient(circle 6px at 42px 17px,#FEBC2E 98%,#0000),radial-gradient(circle 6px at 64px 17px,#28C840 98%,#0000),#2A2C4D;box-shadow:0 0 0 1px #3a3c5e}
-.tr-ring{position:absolute;z-index:3;pointer-events:none;border:3px solid var(--or);border-radius:14px;box-shadow:0 0 0 4px #FF9A5C40,0 0 28px 6px #FF9A5C80;transition:left .35s ease,top .35s ease,width .35s ease,height .35s ease,opacity .25s}
 .tr-hero{max-width:640px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px;padding:24px}
 .tr-hero__rol{margin:0;color:var(--or);font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
 .tr-hero h2{margin:0;font-size:clamp(32px,5vw,56px);line-height:1.05;letter-spacing:-.02em}
@@ -52,8 +54,8 @@
 .tr-help{font-size:12px;opacity:.6;white-space:nowrap}
 @media (max-width:899px){
   .tr{height:auto;min-height:100dvh;overflow:auto;grid-template-rows:auto auto auto}
-  .tr-main{grid-template-columns:1fr;gap:16px;padding:14px 16px}
-  .tr-card{padding:20px}
+  .tr-main,.tr--movil .tr-main{grid-template-columns:1fr;gap:16px;padding:14px 16px}
+  .tr-card{padding:0}
   .tr-stage{padding:30px 0 14px}
   .tr-ctl{position:sticky;bottom:0;background:var(--bg);flex-wrap:wrap;padding:10px 16px;gap:10px}
   .tr-prog{order:3;flex-basis:100%}
