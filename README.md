@@ -1,6 +1,6 @@
-# design-demo-avivla-concept
+# design-demo-brujula-ciudadana
 
-Showroom del concepto de **Brújula Ciudadana** (Naowee). El nombre del repo es histórico: la demo no menciona AVIVLA. Estático: HTML, CSS y JS planos, sin build. Los datos son de ejemplo. Funciona en GitHub Pages.
+Showroom del concepto de **Brújula Ciudadana** (Naowee). Estático: HTML, CSS y JS planos, sin build. Los datos son de ejemplo. Funciona en GitHub Pages.
 
 La portada (`index.html`) pide el **rol**. Cada rol abre su propia demo, con su sesión, su menú y solo sus casos guiados: no se cambia de usuario ni se mezclan casos. Dentro de la demo se elige la **superficie**: Móvil (teléfono) o Escritorio (ventana de navegador).
 
