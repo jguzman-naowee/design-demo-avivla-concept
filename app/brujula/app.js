@@ -1,6 +1,6 @@
 (() => {
   "use strict";
-  const CAT = window.BC_CATALOGO, KEY = "brujula.demo.v2";
+  const CAT = window.BC_CATALOGO, KEY = "brujula.demo.v3";
   const qs = new URLSearchParams(location.search);
   const ROL = ["ciudadano", "conector", "entidad"].includes(qs.get("rol")) ? qs.get("rol") : "ciudadano";
   document.body.classList.add("rol-" + ROL);
@@ -12,6 +12,10 @@
   const sembrar = () => { S = window.BC_SEMILLA(); S.ciudadano = null; guardar(); };
   try { S = JSON.parse(localStorage.getItem(KEY)); } catch (e) { S = null; }
   if (!S || qs.has("semilla")) sembrar();
+  /* Datos de contacto de los conectores: se completan desde la semilla si el estado guardado es anterior. */
+  if (S && S.conectores) { const sem = window.BC_SEMILLA().conectores; S.conectores.forEach((c) => { const n = sem.find((x) => x.id === c.id); if (n) ["foto", "doc", "tel", "email"].forEach((k) => { if (c[k] == null && n[k] != null) c[k] = n[k]; }); }); }
+  /* Recursos y solicitudes que la semilla ganó después: se añaden por id sin tocar lo ya decidido. */
+  if (S) { const sem = window.BC_SEMILLA(); ["recursos", "solicitudes"].forEach((k) => sem[k].forEach((x) => { if (!S[k].some((y) => y.id === x.id)) S[k].push(x); })); }
   if (qs.has("sinsesion") && S.ciudadano) { S.ciudadano = null; guardar(); }
   window.DEMO = { restablecer() { sembrar(); D = null; } };
 
@@ -75,7 +79,7 @@
   const radio = (on, label, data) => '<div class="bc-opt' + (on ? " on" : "") + '" ' + data + '><div class="nwt-radio-button' + (on ? " nwt-radio-button--checked" : "") + '" role="radio" aria-checked="' + on + '" tabindex="0"><div class="nwt-radio-button__control"><div class="nwt-radio-button__dot"></div></div><span class="nwt-radio-button__label">' + label + "</span></div></div>";
 
   function toast(t) { const el = $("#toast"); el.textContent = t; el.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => { el.hidden = true; }, 3200); }
-  const ir = (h) => { if (location.hash === h) render(); else location.hash = h; };
+  const ir = (h) => { if (location.hash === h) { render(); velo(true); } else location.hash = h; };
   const salir = () => { try { top.location.href = new URL("../../index.html", location.href).href; } catch (e) { location.href = "../../index.html"; } };
 
   /* ── borrador de registro ── */
@@ -106,7 +110,7 @@
     '<p class="mut" style="font-size:13px">' + (yo ? "Puedes retirar tu consentimiento cuando quieras. Cada vez que alguien vea tus datos, queda registrado." : "Lee los consentimientos con la persona. Los dos obligatorios son bloqueantes: sin ellos no se crea expediente.") + "</p></div>";
 
   const vMapa = (dims) => dims.map((d) =>
-    '<div class="bc-dim" data-dim="' + d.id + '"><h3>' + esc(d.n) + (d.opcional ? ' <span class="mut" style="font-weight:400">(opcional)</span>' : "") + '</h3><p class="mut">' + esc(d.q) + '</p><div class="stack-s" role="radiogroup" aria-label="' + esc(d.n) + '">' +
+    '<div class="bc-dim" data-dim="' + d.id + '"><h3 class="bc-dh">' + gi(d) + "<span>" + esc(d.n) + (d.opcional ? ' <span class="mut" style="font-weight:400">(opcional)</span>' : "") + '</span></h3><p class="mut">' + esc(d.q) + '</p><div class="stack-s" role="radiogroup" aria-label="' + esc(d.n) + '">' +
     d.o.map((t, i) => { const v = "var"[i]; return radio(D.mapa[d.id] === v, esc(t) + " " + sem(v), 'data-act="sem" data-d="' + d.id + '" data-v="' + v + '"'); }).join("") + "</div></div>").join("") +
     (D.err.mapa ? '<div style="margin-top:12px">' + alerta(esc(D.err.mapa), "negative") + "</div>" : "");
 
@@ -119,18 +123,23 @@
 
   const bloquesMapa = (m, compacto) => CAT.bloques.map((b) => {
     const ds = CAT.dimensiones.filter((d) => d.b === b.id && m[d.id]);
-    return ds.length ? '<div class="bc-bl"><h3><i style="--c:var(--bc-rb' + (CAT.bloques.indexOf(b) + 1) + ')"></i>' + esc(b.nombre) + "</h3>" + ds.map((d) => compacto ? '<div class="bc-d"><i class="bc-dd bc-dd--' + m[d.id] + '" role="img" aria-label="' + SEM[m[d.id]][0] + '"></i><span class="grow">' + esc(d.n) + "</span></div>" : '<div class="bc-d"><span class="grow">' + esc(d.n) + "</span>" + sem(m[d.id]) + "</div>").join("") + "</div>" : "";
+    const DI={vivienda:"home",ingresos:"cash",alimentacion:"apple",salud:"heartbeat",documentacion:"id",red:"heart-handshake",familia:"users",menores:"baby-carriage",cuidados:"woman",empleo:"briefcase",formacion:"school",movilidad:"bus",digital:"device-laptop",autonomia:"user-check",direccion:"sitemap",comunidad:"building-community"};
+    return ds.length ? '<div class="bc-bl"><h3>' + (compacto ? "" : '<i style="--c:var(--bc-rb' + (CAT.bloques.indexOf(b) + 1) + ')"></i>') + esc(b.nombre) + "</h3>" + ds.map((d) => compacto ? '<div class="bc-d bc-d--' + m[d.id] + '"><i class="ti ti-' + (DI[d.id] || "circle") + ' bc-di bc-di--' + m[d.id] + '" role="img" aria-label="' + SEM[m[d.id]][0] + '"></i><span class="grow">' + esc(d.n) + "</span></div>" : '<div class="bc-d"><span class="grow">' + esc(d.n) + "</span>" + sem(m[d.id]) + "</div>").join("") + "</div>" : "";
   }).join("");
 
   /* Radar de 4 ejes (uno por bloque), como en la presentación: r=0, a=.5, v=1; el centro es «sin evaluar». */
   const RB = [["b1", 0, -1, "m"], ["b2", 1, 0, "s"], ["b3", 0, 1, "m"], ["b4", -1, 0, "e"]], VSC = { r: 0, a: 0.5, v: 1 };
   const mapaRadar = (m) => {
-    const cx = 220, cy = 124, R = 92, pt = (dx, dy, f) => [cx + dx * R * f, cy + dy * R * f];
+    const cx = 220, cy = 140, R = 104, pt = (dx, dy, f) => [cx + dx * R * f, cy + dy * R * f];
     const val = RB.map(([b]) => { const v = CAT.dimensiones.filter((d) => d.b === b && m[d.id]).map((d) => VSC[m[d.id]]); return v.length ? 0.2 + 0.8 * (v.reduce((x, y) => x + y, 0) / v.length) : 0.1; });
     const ring = (f) => RB.map(([, dx, dy]) => pt(dx, dy, f).join(",")).join(" ");
-    const lbl = RB.map(([b, dx, dy, an], i) => { const [x, y] = pt(dx, dy, 1.0), n = esc(CAT.bloques.find((k) => k.id === b).nombre); return '<text class="bc-rd-ax' + (an === "s" ? " s" : an === "e" ? " e" : "") + '" x="' + (x + dx * 10) + '" y="' + (dy < 0 ? y - 10 : dy > 0 ? y + 17 : y + 4) + '">' + n + "</text>"; }).join("");
+    const lbl = RB.map(([b, dx, dy, an]) => {
+      const [x, y] = pt(dx, dy, 1.0), n = CAT.bloques.find((k) => k.id === b).nombre, ls = n.length > 10 && n.includes(" ") ? [n.slice(0, n.indexOf(" ")), n.slice(n.indexOf(" ") + 1)] : [n];
+      const y0 = dy < 0 ? y - 10 - (ls.length - 1) * 14 : dy > 0 ? y + 17 : y + 4 - (ls.length - 1) * 7;
+      return '<text class="bc-rd-ax' + (an === "s" ? " s" : an === "e" ? " e" : "") + '" x="' + (x + dx * 10) + '" y="' + y0 + '">' + ls.map((t, k) => '<tspan x="' + (x + dx * 10) + '"' + (k ? ' dy="14"' : "") + ">" + esc(t) + "</tspan>").join("") + "</text>";
+    }).join("");
     const dots = RB.map(([, dx, dy], i) => { const [x, y] = pt(dx, dy, val[i]); return '<circle class="bc-rd-d" style="--c:var(--bc-rb' + (i + 1) + ')" r="7.5" cx="' + x + '" cy="' + y + '"/>'; }).join("");
-    return '<svg class="bc-radar" viewBox="0 0 440 250" role="img" aria-label="Mapa de Vida por bloque"><g class="bc-rd-g"><polygon points="' + ring(1) + '"/><polygon points="' + ring(0.66) + '"/><polygon points="' + ring(0.33) + '"/><path d="M' + cx + " " + (cy - R) + "V" + (cy + R) + "M" + (cx - R) + " " + cy + "H" + (cx + R) + '"/></g><polygon class="bc-rd-p" points="' + RB.map(([, dx, dy], i) => pt(dx, dy, val[i]).join(",")).join(" ") + '"/>' + dots + lbl + "</svg>";
+    return '<svg class="bc-radar" viewBox="0 0 440 280" role="img" aria-label="Mapa de Vida por bloque"><g class="bc-rd-g"><polygon points="' + ring(1) + '"/><polygon points="' + ring(0.66) + '"/><polygon points="' + ring(0.33) + '"/><path d="M' + cx + " " + (cy - R) + "V" + (cy + R) + "M" + (cx - R) + " " + cy + "H" + (cx + R) + '"/></g><polygon class="bc-rd-p" points="' + RB.map(([, dx, dy], i) => pt(dx, dy, val[i]).join(",")).join(" ") + '"/>' + dots + lbl + "</svg>";
   };
   const mapaBloques = (m) => '<div class="bc-rd-leg">' + CAT.bloques.map((b, i) => {
     const c = { r: 0, a: 0, v: 0 }; CAT.dimensiones.filter((d) => d.b === b.id && m[d.id]).forEach((d) => c[m[d.id]]++);
@@ -141,7 +150,11 @@
   /* ════════ CIUDADANO ════════ */
   const yoP = () => S.ciudadano && per(S.ciudadano);
   /* Piezas propias del Ciudadano (cz-*): lo que el SDK no trae. */
+  const MARCA = '<svg class="bc-marca" viewBox="0 0 200 200" fill="none" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M110.6 24.8A76 76 0 0 1 110.6 175.2" stroke="#f49a2d" stroke-width="14"/><path d="M89.4 175.2A76 76 0 0 1 89.4 24.8" stroke="#ed722e" stroke-width="14"/><g transform="rotate(40 100 100)"><path d="M100 156L82 100H118Z" stroke="#f49a2d" stroke-width="11"/><path d="M100 44L118 100H82Z" stroke="#ed722e" stroke-width="11"/></g></svg>';
+  const PALABRA = '<svg class="bc-pal" viewBox="0 0 268 126" role="img" aria-label="Brújula Ciudadana"><g fill="none" stroke="currentColor" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V80"/><circle cx="34" cy="60" r="20"/><path d="M62 40V80M62 60Q62 40 80 40"/><path d="M92 40V62A18 18 0 0 0 128 62M128 40V80"/><path d="M142 40V88A8 8 0 0 1 134 96"/><path d="M156 40V62A18 18 0 0 0 192 62M192 40V80"/><path d="M206 18V80"/><circle cx="232" cy="60" r="20"/><path d="M252 40V80"/></g><path d="M106 28L122 13" stroke="#ed722e" stroke-width="9" stroke-linecap="round"/><circle cx="142" cy="20" r="6" fill="#f49a2d"/><text x="9" y="121" font-family="Space Grotesk,Inter,system-ui,sans-serif" font-size="22" font-weight="700" fill="currentColor" textLength="250" lengthAdjust="spacing">CIUDADANA</text></svg>';
   const BRUJULA_SVG = '<svg class="cz-brujula" width="300" height="300" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="140" fill="none" stroke="#2B2D45" stroke-width="1.5"/><circle cx="150" cy="150" r="100" fill="none" stroke="#2B2D45" stroke-width="1.5"/><circle cx="150" cy="150" r="60" fill="none" stroke="#33354F" stroke-width="1.5"/><circle cx="150" cy="150" r="7" fill="#FF9A5C"/><circle cx="78" cy="88" r="9" fill="#17B26A"/><circle cx="232" cy="190" r="9" fill="#F79009"/><circle cx="120" cy="246" r="9" fill="#5B8DEF"/><path d="M150 150 78 88M150 150l82 40M150 150l-30 96" stroke="#4A4D6A" stroke-width="1.5" stroke-dasharray="4 5"/></svg>';
+  /* Ficha con gradiente por bloque del Mapa de Vida (b1–b4), como los emojis del doc 03 pero dentro de la marca. */
+  const gi = (d) => '<span class="bc-gi" data-b="' + d.b + '">' + ic(CZ_ICO[d.id] || "target") + "</span>";
   const CZ_ICO = { vivienda: "home", ingresos: "banknote", alimentacion: "basket", salud: "favorite", documentacion: "file-text", red: "users", familia: "users-group", menores: "user-circle", cuidados: "hands-heart", empleo: "employees", formacion: "learning", movilidad: "car", digital: "laptop", autonomia: "accessibility", direccion: "target", comunidad: "handshake" };
   const CZ_CAT = { "Vivienda": "home", "Alimentación": "basket", "Salud y Bienestar": "favorite", "Empleo": "employees", "Formación": "learning", "Documentación y Trámites": "file-text", "Red de Apoyo": "users", "Competencias Digitales": "laptop" };
   const CZ_ST = { "Pendiente": ["Revisando", 2, "a"], "Aprobada": ["Aprobado", 3, "v"], "En lista de espera": ["En lista", 2, "b"], "Falta información": ["Falta info", 2, "a"], "Rechazada": ["Rechazado", 3, "r"] };
@@ -149,21 +162,23 @@
   const czCuenta = (m) => { const c = { r: 0, a: 0, v: 0 }; Object.values(m || {}).forEach((v) => { if (c[v] != null) c[v]++; }); return c; };
   let czFiltro = "todos";
   function cBienvenida() {
-    return '<div class="cz-bienv"><div class="bc-hero cz-hero"><div class="cz-marca">' + ic("globe-pin") + "Brújula Ciudadana</div>" + BRUJULA_SVG + "<h1>Toda tu ayuda,<br><span>en un solo sitio</span></h1></div>" +
-      '<h2 class="cz-pasos-t" id="cz-como">Cómo funciona</h2><ul class="cz-pasos" aria-labelledby="cz-como">' + [["user-plus", "Te registras", "5 min"], ["phone", "Un conector te llama", "24–72 h"], ["map-pin", "Recibes tu ruta", "En tu zona"]].map(([i, t, n]) => '<li><span class="cz-pi">' + ic(i) + "</span><b>" + t + "</b><span>" + n + "</span></li>").join("") + "</ul>" +
-      '<div class="cz-cta">' + btn("Empezar", { iconEnd: "arrow-right", act: "empezar-yo", a: { id: "btn-registrarme" } }) + btn("Ya tengo expediente", { v: "quiet", act: "entrar-ejemplo", a: { id: "btn-ejemplo" } }) + '<div class="cz-lock">' + ic("lock") + "Solo con tu permiso</div></div></div>";
+    return '<div class="cz-bienv"><div class="bc-hero cz-hero" data-tint="#272a55"><div class="cz-marca">' + MARCA + PALABRA + "</div>" + BRUJULA_SVG + "<h1>¿En qué programa<br><span>estás?</span></h1><p class='cz-sub'>Regístrate una vez y descubre qué ayuda te corresponde.</p></div>" +
+      '<h2 class="cz-pasos-t" id="cz-como">Cómo funciona</h2><ul class="cz-pasos" aria-labelledby="cz-como">' + [["user-plus", "Cuéntanos tu situación", "5 min"], ["phone", "Un conector te orienta", "24–72 h"], ["map-pin", "Ves tus programas", "En tu zona"]].map(([i, t, n]) => '<li><span class="cz-pi">' + ic(i) + "</span><b>" + t + "</b>" + tag(n, "neutral", "small") + "</li>").join("") + "</ul>" +
+      '<div class="cz-cta">' + btn("Empezar", { act: "empezar-yo", a: { id: "btn-registrarme" } }) + btn("Ya tengo expediente", { v: "quiet", act: "entrar-ejemplo", a: { id: "btn-ejemplo" } }) + "</div></div>";
   }
   const PASOS_YO = ["Consentimiento", "Tus datos", "Cómo estás", "Dónde te atienden"];
   const AUTO = CAT.autoevaluacion;
   const AUTO_EJ = { a1: "a", a2: "a", a3: "r", a4: "v", a5: "a", a6: "a", a7: "r", a8: "a" };
   function cRegistro(paso, n) {
     if (!D || D.tipo !== "yo") D = nuevo("yo");
-    const b = { pos: paso - 1 };
+    /* Un segmento por pantalla real: permisos, datos, cada pregunta del Mapa y la entidad; sin números. */
+    const b = { pos: paso <= 2 ? paso - 1 : 2 + AUTO.length, total: 3 + AUTO.length };
     if (paso === 1) return czWiz(Object.assign(b, { titulo: "Tus permisos", cuerpo: czConsent(), atras: "#/inicio", act: "yo-1" }));
     if (paso === 2) return czWiz(Object.assign(b, { titulo: "Sobre ti", cuerpo: czDatos(), atras: "#/registro/1", act: "yo-2", ejemplo: "datos" }));
     if (paso === 3) {
       const q = AUTO[Math.min(Math.max(n || 1, 1), AUTO.length) - 1], i = AUTO.indexOf(q);
-      return czWiz(Object.assign(b, { titulo: q.q, icono: q.icono, eyebrow: "¿Cómo estás hoy? · " + q.sistema, sub: (i + 1) + "/" + AUTO.length, cuerpo: czPregunta(q), atras: i ? "#/registro/3/" + i : "#/registro/2", act: "yo-3", ejemplo: i ? "" : "mapa", sig: i < AUTO.length - 1 ? "Siguiente" : "Continuar" }));
+      b.pos = 2 + i;
+      return czWiz(Object.assign(b, { titulo: q.q, icono: q.icono, eyebrow: "¿Cómo estás hoy? · " + q.sistema, cuerpo: czPregunta(q), atras: i ? "#/registro/3/" + i : "#/registro/2", act: "yo-3", ejemplo: i ? "" : "mapa", sig: i < AUTO.length - 1 ? "Siguiente" : "Continuar" }));
     }
     const urg = Object.values(D.auto).includes("r");
     return czWiz(Object.assign(b, {
@@ -172,13 +187,13 @@
     }));
   }
   /* Asistente del ciudadano: cabecera con atrás y progreso, cuerpo y botón fijo abajo. */
-  const czWiz = (o) => '<div class="bc-page cz-pg cz-wiz"><div class="cz-cab' + (o.eyebrow ? "" : " cz-cab--t") + '"><a class="cz-atras" href="' + o.atras + '" aria-label="Atrás">' + ic("chevron-left") + "</a>" + (o.eyebrow ? "" : '<h1 class="cz-tit">' + esc(o.titulo) + "</h1>") + '<span class="cz-pn">' + (o.pos + 1) + "/" + PASOS_YO.length + '</span><div class="cz-prog" role="img" aria-label="Paso ' + (o.pos + 1) + ' de ' + PASOS_YO.length + '">' + PASOS_YO.map((x, i) => '<i class="' + (i <= o.pos ? "on" : "") + '"></i>').join("") + "</div></div>" +
-    '<div class="cz-cuerpo">' + (o.icono ? '<div class="cz-ico">' + ic(o.icono) + "</div>" : "") + (o.eyebrow ? "<h1>" + esc(o.titulo) + '</h1><span class="cz-qk">' + esc(o.eyebrow) + (o.sub ? ' <b class="cz-qn">' + o.sub + "</b>" : "") + "</span>" : "") +
+  const czWiz = (o) => '<div class="bc-page cz-pg cz-wiz"><div class="cz-cab' + (o.eyebrow ? "" : " cz-cab--t") + '"><a class="cz-atras" href="' + o.atras + '" aria-label="Atrás">' + ic("chevron-left") + "</a>" + (o.eyebrow ? "" : '<h1 class="cz-tit">' + esc(o.titulo) + "</h1>") + '<div class="cz-prog" role="img" aria-label="Paso ' + (o.pos + 1) + ' de ' + o.total + '">' + Array.from({ length: o.total }, (x, i) => '<i class="' + (i <= o.pos ? "on" : "") + '"></i>').join("") + "</div></div>" +
+    '<div class="cz-cuerpo">' + (o.eyebrow ? '<div class="cz-hd"><div class="cz-hd__t"><h1>' + esc(o.titulo) + '</h1><span class="cz-qk">' + esc(o.eyebrow) + "</span></div>" + (o.icono ? '<div class="cz-ico">' + ic(o.icono) + "</div>" : "") + "</div>" : (o.icono ? '<div class="cz-ico">' + ic(o.icono) + "</div>" : "")) +
     (o.ejemplo ? '<div class="bc-ejemplo">' + btn("Completar con datos de ejemplo", { v: "quiet", size: "small", icon: "sparkles", act: "ejemplo", a: { "data-k": o.ejemplo } }) + "</div>" : "") + o.cuerpo + "</div>" +
     '<div class="cz-pie">' + (o.pie || "") + btn(o.sig || "Continuar", { act: o.act, iconEnd: o.sigIcon || "arrow-right", a: { id: "btn-sig" } }) + "</div></div>";
-  const CZ_PERM = { privacidad: ["Política de privacidad", "Necesario"], tratamiento: ["Tratar mis datos", "Necesario"], entidades: ["Compartir mi itinerario", "Nunca tu diagnóstico"], comunicaciones: ["Recibir avisos", "Por tu canal preferido"] };
+  const CZ_PERM = { privacidad: ["Política de privacidad", "Necesario"], tratamiento: ["Tratar mis datos", "Necesario"], entidades: ["Compartir mi itinerario", "Para acceder a recursos de otras entidades"], comunicaciones: ["Recibir avisos", "Por tu canal preferido"] };
   const czConsent = () => '<div class="cz-card cz-perm">' + CAT.consentimientos.map((c) => { const t = CZ_PERM[c.id] || [c.txt, c.obligatorio ? "Necesario" : ""]; return checkbox(c.id, !!D.consent[c.id], '<span class="cz-pt">' + esc(t[0]) + '</span><span class="cz-ps' + (c.obligatorio ? " req" : "") + '">' + esc(t[1]) + "</span>", "", "data-c"); }).join("") + "</div>" +
-    (D.err.consent ? alerta(esc(D.err.consent), "negative") : "") + '<div class="cz-nota">' + ic("eye") + "Verás quién consulta tus datos</div>";
+    (D.err.consent ? alerta(esc(D.err.consent), "negative") : "");
   /* Opciones únicas (documento, canal, idioma): botones que escriben en D.datos igual que el select. */
   const czOpt = (k, v, cls, inner) => '<button type="button" role="radio" class="' + cls + '" aria-checked="' + (D.datos[k] === v) + '" data-act="c-set" data-k="' + k + '" data-v="' + esc(v) + '">' + (inner || esc(v)) + "</button>";
   const czGrupo = (k, label, cls, opts, inner) => '<div class="cz-grupo"><span class="cz-gl" id="g-' + k + '">' + label + '</span><div class="' + cls + '" role="radiogroup" aria-labelledby="g-' + k + '">' + opts.map((v) => czOpt(k, v, cls + "-o", inner && inner(v))).join("") + "</div>" + (D.err[k] ? '<p class="cz-err" id="e-' + k + '">' + esc(D.err[k]) + "</p>" : "") + "</div>";
@@ -192,18 +207,22 @@
     czGrupo("canal", "¿Cómo te contactamos?", "cz-fichas", CAT.canales, (v) => ic(CZ_CANAL[v] || "message-text") + "<span>" + esc(v) + "</span>") +
     czMulti("idioma", "Idiomas que hablas", "cz-chips", CAT.idiomas);
   /* Cada pregunta del Mapa de Vida: ícono, pregunta grande y tres respuestas con el color del semáforo. */
-  const czPreguntas = (dims) => '<div class="cz-qs">' + dims.map((d) => '<section class="bc-dim cz-q" data-dim="' + d.id + '"><div class="cz-qh"><div class="cz-qi">' + ic(CZ_ICO[d.id] || "target") + '</div><div><span class="cz-qk">' + esc(d.n) + "</span><h2>" + esc(d.q) + '</h2></div></div><div class="cz-qo" role="radiogroup" aria-label="' + esc(d.n) + '">' +
+  const czPreguntas = (dims) => '<div class="cz-qs">' + dims.map((d) => '<section class="bc-dim cz-q" data-dim="' + d.id + '"><div class="cz-qh"><div class="cz-qi">' + gi(d) + '</div><div><span class="cz-qk">' + esc(d.n) + "</span><h2>" + esc(d.q) + '</h2></div></div><div class="cz-qo" role="radiogroup" aria-label="' + esc(d.n) + '">' +
     d.o.map((t, i) => { const v = "var"[i]; return radio(D.mapa[d.id] === v, '<i class="cz-dot cz-' + v + '"></i>' + esc(t), 'data-act="sem" data-d="' + d.id + '" data-v="' + v + '"'); }).join("") + "</div></section>").join("") + "</div>" +
     (D.err.mapa ? alerta(esc(D.err.mapa), "negative") : "");
   /* Una pregunta por pantalla: la respuesta va a D.auto y se traduce al Mapa de Vida al crear el expediente. */
   const czPregunta = (q) => '<section class="bc-dim cz-q cz-q1" data-q="' + q.id + '"><div class="cz-qo" role="radiogroup" aria-label="' + esc(q.q) + '">' +
     q.o.map((t, i) => { const v = "var"[i]; return radio(D.auto[q.id] === v, '<i class="cz-dot cz-' + v + '"></i>' + esc(t), 'data-act="c-auto" data-q="' + q.id + '" data-v="' + v + '"'); }).join("") + "</div></section>" +
+    (q.id === "a6" ? '<div class="cz-nota">' + ic("shield-check") + "Estos datos pueden ser verificados.</div>" : "") +
     (D.err.auto ? alerta(esc(D.err.auto), "negative") : "");
   /* Mini-mapa ilustrativo: los pines están en posiciones fijas, no son coordenadas reales. */
   const CZ_PIN = [[92, 52], [270, 40], [230, 128]];
-  const czEntidades = () => '<div class="cz-map" role="img" aria-label="Mapa con ' + S.entidades.length + ' entidades cerca de ti"><svg viewBox="0 0 350 168" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M-10 120 C 80 90, 140 150, 220 110 S 340 60, 370 80" stroke="#fff" stroke-width="14" fill="none"/><path d="M60 -10 L 110 180" stroke="#fff" stroke-width="10"/><path d="M250 -10 L 230 180" stroke="#fff" stroke-width="8"/><rect x="140" y="20" width="60" height="40" rx="8" fill="#D6EBDD"/><circle cx="175" cy="96" r="22" fill="rgba(91,141,239,.18)"/><circle cx="175" cy="96" r="7" fill="#2E6BE6" stroke="#fff" stroke-width="3"/></svg>' +
-    S.entidades.map((e, i) => { const q = CZ_PIN[i % 3]; return '<span class="cz-pin' + (D.entidad === e.id ? " on" : "") + '" style="left:' + (q[0] / 3.5).toFixed(1) + "%;top:" + (q[1] / 1.68).toFixed(1) + '%" aria-hidden="true">' + (i + 1) + "</span>"; }).join("") + "</div>" +
-    '<div class="cz-ents" role="radiogroup" aria-label="Entidad">' + S.entidades.map((e, i) => '<button type="button" role="radio" class="cz-ent" aria-checked="' + (D.entidad === e.id) + '" data-act="ent" data-e="' + e.id + '"><span class="cz-en">' + (i + 1) + '</span><span class="cz-et"><b>' + esc(e.nombre) + "</b><span>" + esc(e.zona) + "</span></span></button>").join("") + "</div>";
+  /* Entidades por cercanía al código postal (en Madrid crece con la distancia); sin CP válido, orden de la red. */
+  const czCp = () => /^\d{5}$/.test((D.datos || {}).cp || "") ? +D.datos.cp : 0;
+  const czOrd = () => { const cp = czCp(), o = cp ? [...S.entidades].sort((x, y) => Math.abs(+x.cp - cp) - Math.abs(+y.cp - cp)) : S.entidades; if (!D.entTocada && o[0]) D.entidad = o[0].id; return o; };
+  const czEntidades = () => '<p class="cz-expl">' + (czCp() ? "Según tu código postal (" + czCp() + ") te mostramos primero las entidades más cercanas. Así sabemos desde dónde te pueden acompañar y quién te llamará." : "Sin código postal te mostramos todas las entidades de la red. Con tu código postal te ubicamos las más cercanas.") + '</p><div class="cz-map" role="img" aria-label="Mapa con ' + S.entidades.length + ' entidades' + (czCp() ? ', ordenadas por cercanía a tu código postal' : ' cerca de ti') + '"><svg viewBox="0 0 350 168" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><path d="M-10 120 C 80 90, 140 150, 220 110 S 340 60, 370 80" stroke="#fff" stroke-width="14" fill="none"/><path d="M60 -10 L 110 180" stroke="#fff" stroke-width="10"/><path d="M250 -10 L 230 180" stroke="#fff" stroke-width="8"/><rect x="140" y="20" width="60" height="40" rx="8" fill="#D6EBDD"/><circle cx="175" cy="96" r="22" fill="rgba(91,141,239,.18)"/><circle cx="175" cy="96" r="7" fill="#2E6BE6" stroke="#fff" stroke-width="3"/></svg>' +
+    czOrd().map((e, i) => { const q = CZ_PIN[i % 3]; return '<span class="cz-pin' + (D.entidad === e.id ? " on" : "") + '" style="left:' + (q[0] / 3.5).toFixed(1) + "%;top:" + (q[1] / 1.68).toFixed(1) + '%" aria-hidden="true">' + (i + 1) + "</span>"; }).join("") + "</div>" +
+    '<div class="cz-ents" role="radiogroup" aria-label="Entidad">' + czOrd().map((e, i) => '<button type="button" role="radio" class="cz-ent" aria-checked="' + (D.entidad === e.id) + '" data-act="ent" data-e="' + e.id + '"><span class="cz-en">' + (i + 1) + '</span><span class="cz-et"><b>' + esc(e.nombre) + "</b><span>" + esc(e.zona) + "</span></span>" + (czCp() && i === 0 ? '<span class="cz-near">' + (+e.cp === czCp() ? "En tu zona" : "Más cerca") + "</span>" : "") + "</button>").join("") + "</div>";
   function cInicio() {
     const p = yoP(); if (!p) return cBienvenida();
     const sols = solsDe(p.id), c = p.conector && con(p.conector), pend = sols.filter((s) => s.estado === "Pendiente");
@@ -235,7 +254,7 @@
         const r = rec(s.recurso), [fin, n, k] = CZ_ST[s.estado];
         return '<article class="cz-rec cz-e-' + k + '"><div class="cz-rh"><span class="cz-ri">' + ic(CZ_CAT[r.cat] || "hands-heart") + '</span><div class="grow"><b>' + esc(r.nombre) + "</b><span>" + esc(ent(r.entidad).nombre) + "</span></div>" + czSt(s.estado) + "</div>" +
           '<div class="cz-etapas" role="img" aria-label="' + esc(r.nombre) + ": " + s.estado.toLowerCase() + '"><div class="cz-barra"><i></i><i class="' + (n >= 2 ? "" : "off") + '"></i><i class="' + (n >= 3 ? "" : "off") + '"></i></div><div class="cz-et3"><span>Solicitado</span><span>Revisión</span><span class="' + (n >= 3 ? "fin" : "") + '">' + (n >= 3 ? fin : "Resultado") + "</span></div></div>" +
-          (s.estado === "Rechazada" && s.motivo ? '<p class="cz-mot">' + esc(s.motivo) + "</p>" : "") + "</article>";
+          (s.estado === "Rechazada" && s.motivo ? '<p class="cz-mot">' + esc(s.motivo) + "</p>" : "") + usoBloque(s) + "</article>";
       }).join("") : '<p class="cz-vacio">' + (sols.length ? "Nada en esta lista." : "Aún no tienes recursos. Tu conector te los propondrá.") + "</p>") + "</div></div>";
   }
   function cMapa() {
@@ -243,9 +262,17 @@
     const cn = czCuenta(p.mapa), BL = [["Básico", ["vivienda", "ingresos", "alimentacion", "salud"]], ["Entorno", ["documentacion", "red", "familia", "menores"]], ["Autonomía", ["cuidados", "empleo", "formacion", "movilidad"]], ["Participación", ["digital", "autonomia", "direccion", "comunidad"]]];
     const CORTO_D = { alimentacion: "Comida", salud: "Salud", documentacion: "Trámites", menores: "Infancia", formacion: "Formación", digital: "Digital", autonomia: "Autonomía", direccion: "Gestión", comunidad: "Comunidad", ingresos: "Ingresos", vivienda: "Vivienda", red: "Red", familia: "Familia", cuidados: "Cuidados", empleo: "Empleo", movilidad: "Movilidad" };
     const SM = { r: "necesita apoyo", a: "en proceso", v: "estable" }, falta = 16 - cn.r - cn.a - cn.v;
-    const chip = (k, t, n) => '<span class="cz-chip"><i class="cz-dot cz-' + k + '"></i>' + t + " · " + n + "</span>";
-    return '<div class="bc-page cz-pg cz-mapa"><h1>Mi Mapa de Vida</h1><div class="cz-chips-r">' + chip("r", "Apoyo", cn.r) + chip("a", "Proceso", cn.a) + chip("v", "Bien", cn.v) + (falta ? chip("n", "Por completar", falta) : "") + "</div>" +
-      BL.map(([t, ids]) => '<section class="cz-bl"><h2>' + t + '</h2><div class="cz-tiles">' + ids.map((id) => { const v = p.mapa[id]; return '<div class="cz-tile cz-' + (v || "n") + '" role="img" aria-label="' + CORTO_D[id] + ": " + (v ? SM[v] : "sin evaluar") + '">' + ic(CZ_ICO[id]) + "<span>" + CORTO_D[id] + "</span></div>"; }).join("") + "</div></section>").join("") + "</div>";
+    const ORD = { r: 0, a: 1, v: 2 }, ids = BL.flatMap((x) => x[1]), DIM = (id) => CAT.dimensiones.find((d) => d.id === id);
+    const nRec = (id) => S.recursos.filter((r) => r.cat === DIM(id).cat && !r.pausado).length;
+    const barra = ids.slice().sort((x, y) => (ORD[p.mapa[x]] ?? 3) - (ORD[p.mapa[y]] ?? 3)).map((id) => '<i class="cz-' + (p.mapa[id] || "n") + '"></i>').join("");
+    const c = p.conector && con(p.conector), rojas = ids.filter((id) => p.mapa[id] === "r");
+    const leg = (k, n, t) => '<span><i class="cz-dot cz-' + k + '"></i><b>' + n + "</b> " + t + "</span>";
+    const tile = (id) => { const v = p.mapa[id] || "n"; return '<div class="cz-tile cz-' + v + '" role="img" aria-label="' + CORTO_D[id] + ": " + (SM[v] || "sin evaluar") + '"><span class="cz-tb">' + ic(CZ_ICO[id]) + "</span><b>" + CORTO_D[id] + "</b><small>" + ({ r: "Apoyo", a: "En camino", v: "Bien", n: "Sin dato" })[v] + "</small></div>"; };
+    return '<div class="bc-page cz-pg cz-mapa"><div><h1>Mi Mapa de Vida</h1><p class="cz-mp-sub">16 áreas de tu vida, según lo que contaste</p></div>' +
+      '<section class="cz-dark cz-mp-hero"><div class="cz-mp-bar" aria-hidden="true">' + barra + '</div><div class="cz-mp-leg">' + leg("r", cn.r, "con apoyo") + leg("a", cn.a, "en camino") + leg("v", cn.v, "bien") + (falta ? leg("n", falta, "sin dato") : "") + "</div>" +
+      (c ? '<button type="button" class="cz-mp-con" data-act="ver-mi-con" aria-haspopup="dialog">' + avatar(ini(c.nombre), "blue", "small") + "<span>" + esc(c.nombre.split(" ")[0]) + (rojas.length ? " te acompaña en lo que más pesa ahora" : " revisa tu mapa contigo") + "</span>" + ic("chevron-right") + "</button>" : "") + "</section>" +
+      (rojas.length ? '<section class="cz-bl"><h2>Empieza por aquí</h2>' + rojas.map((id) => { const n = nRec(id); return '<a class="cz-foco" href="#/recursos"><span class="cz-tb">' + ic(CZ_ICO[id]) + '</span><div class="grow"><b>' + esc(DIM(id).n) + "</b><span>" + (n ? n + (n > 1 ? " recursos disponibles" : " recurso disponible") : "Tu conector busca opciones") + "</span></div>" + ic("chevron-right") + "</a>"; }).join("") + "</section>" : "") +
+      BL.map(([t, ids2]) => { const nr = ids2.filter((id) => p.mapa[id] === "r" || p.mapa[id] === "a").length; return '<section class="cz-bl"><h2>' + t + '<span>' + (nr ? nr + " de 4 por atender" : "Todo bien") + '</span></h2><div class="cz-tiles">' + ids2.map(tile).join("") + "</div></section>"; }).join("") + "</div>";
   }
   function cPrivacidad() {
     const p = yoP(); if (!p) return cBienvenida();
@@ -255,7 +282,7 @@
     const sig = (t) => { const x = ini(t); return x.length < 2 ? t.slice(0, 2).toUpperCase() : x; };
     const corta = (f) => f.slice(0, 10) === hoy() ? "Hoy" : new Date(f.slice(0, 10) + "T00:00").toLocaleDateString("es-ES", { day: "numeric", month: "short" }).replace(".", "");
     const COL = { e1: "blue", e2: "teal", e3: "orange" };
-    return '<div class="bc-page cz-pg cz-priv"><h1>Privacidad</h1><div class="cz-stack" id="consentimientos"><div class="cz-dark"><div class="cz-cn"><div class="grow"><b class="cz-g">Compartir mi itinerario</b><span class="cz-sub' + (on ? " on" : "") + '">' + (on ? ents.length + (ents.length > 1 ? " entidades ven" : " entidad ve") + " recurso y estado" : "Solo tu entidad ve tu expediente") + "</span></div>" + sw("entidades", "Compartir mi itinerario con otras entidades", on) + "</div>" +
+    return '<div class="bc-page cz-pg cz-priv"><h1>Privacidad</h1><div class="cz-stack" id="consentimientos"><div class="cz-dark"><div class="cz-cn"><div class="grow"><b class="cz-g">Compartir mi itinerario</b><span class="cz-sub' + (on ? " on" : "") + '">' + (on ? ents.length + (ents.length > 1 ? " entidades ven" : " entidad ve") + " recurso y estado" : "Sin esto, solo accedes a recursos de tu entidad") + "</span></div>" + sw("entidades", "Compartir mi itinerario con otras entidades", on) + "</div>" +
       '<div class="cz-cadena" aria-hidden="true">' + avatar(ini(nom(p)), "orange", "medium") + ents.map((e, i) => '<span class="cz-lin' + (i && !on ? " off" : "") + '"></span><span class="cz-nodo' + (i && !on ? " off" : "") + '">' + avatar(sig(ent(e).nombre), COL[e] || "blue", "medium") + "</span>").join("") + "</div></div>" +
       '<div class="cz-card cz-aviso"><div class="grow"><b>Recibir avisos</b><span>Por tu canal preferido</span></div>' + sw("comunicaciones", "Recibir avisos sobre mi expediente", !!p.consent.comunicaciones) + "</div></div>" +
       '<div class="cz-card cz-accesos" id="accesos"><h2>' + ic("eye") + "Quién vio tus datos</h2>" + acc.map((a) => '<div class="cz-ac">' + avatar(a.quien === "Sistema" ? "SI" : sig(a.quien), a.quien === "Sistema" ? "purple" : COL[a.entidad] || "blue", "medium") + '<div class="grow"><b>' + esc(a.quien) + "</b><span>" + esc(a.para) + "</span></div><time>" + corta(a.cuando) + "</time></div>").join("") + "</div></div>";
@@ -280,7 +307,7 @@
   const kzBarra = (m) => {
     const c = { r: 0, a: 0, v: 0 }; Object.values(m || {}).forEach((v) => { if (c[v] != null) c[v]++; });
     if (!c.r && !c.a && !c.v) return '<span class="kz-bar kz-bar--vacio" role="img" aria-label="Mapa sin evaluar"></span>';
-    return '<span class="kz-bar" role="img" aria-label="' + c.r + " necesitan apoyo, " + c.a + " en proceso, " + c.v + ' estables">' + ["r", "a", "v"].filter((k) => c[k]).map((k) => '<i class="' + k + '" style="flex:' + c[k] + '"></i>').join("") + "</span>";
+    return '<span class="kz-pin" role="img" aria-label="' + c.r + " necesitan apoyo, " + c.a + " en proceso, " + c.v + ' estables">' + ["r", "a", "v"].filter((k) => c[k]).map((k) => '<i class="' + k + '" style="flex:' + c[k] + '"></i>').join("") + "</span>";
   };
   const kFila = (p) => {
     const pend = solsDe(p.id).filter((s) => s.estado === "Pendiente").length, corto = p.mapaTipo === "corto";
@@ -296,8 +323,8 @@
     const q = busca.trim().toLowerCase(), lista = mias.filter((p) => !q || (nom(p) + " " + p.id).toLowerCase().includes(q));
     const cifra = (n, l, cls) => '<div class="kz-stat' + (cls ? " " + cls : "") + '"><b>' + n + "</b><span>" + l + "</span></div>";
     return '<div class="bc-page kz-page kz-lista"><div class="kz-head"><div><span class="kz-eyebrow">' + esc(ent(ENT).nombre) + "</span><h1>Mis personas</h1></div>" +
-      '<a class="kz-fab" id="btn-registrar" href="#/registrar/1" aria-label="Registrar persona">' + ic("plus") + '<span class="kz-fab__t">Registrar persona</span></a></div>' +
-      '<div class="kz-stats">' + cifra(mias.length, "Activas", "kz-stat--dark") + cifra(pend, "Pendientes") + cifra(apoyo, "Necesitan apoyo", apoyo ? "kz-stat--alert" : "") + "</div>" +
+      '</div>' +
+      '<div class="kz-stats">' + cifra(mias.length, "Activas", "kz-stat--dark") + cifra(pend, "Pendientes") + cifra(apoyo, "Por apoyar", apoyo ? "kz-stat--alert" : "") + "</div>" +
       (porAsignar ? '<div class="kz-aviso">' + ic("bell") + "<span>" + porAsignar + (porAsignar > 1 ? " autorregistros esperan" : " autorregistro espera") + " conector.</span></div>" : "") +
       '<label class="kz-search kz-search--s">' + ic("search") + '<span class="sr">Buscar persona</span><input id="f-busca" type="search" data-busca placeholder="Buscar" value="' + esc(busca) + '" autocomplete="off"></label>' +
       '<div class="kz-list">' + (lista.length ? lista.map(kFila).join("") : '<p class="kz-vacio">Nadie coincide con la búsqueda.</p>') + "</div></div>";
@@ -347,7 +374,7 @@
   function kRegistrarWiz(paso) {
     const pos = paso <= 3 ? paso - 1 : paso <= 7 ? 3 : 4;
     const b = { eyebrow: "Registrar persona", pasos: PASOS_CON, pos };
-    if (paso === 2) return wiz(Object.assign(b, { titulo: "Consentimientos", sub: "Sin los dos obligatorios el proceso termina y no se registra nada.", cuerpo: vConsent(false), atras: "#/registrar/1", act: "con-2", extra: btn("La persona no acepta", { v: "quiet", theme: "negative", act: "no-acepta" }) }));
+    if (paso === 2) return wiz(Object.assign(b, { titulo: "Consentimientos", sub: "Sin los dos obligatorios el proceso termina y no se registra nada.", cuerpo: vConsent(false), atras: "#/registrar/1", act: "con-2", extra: btn("Cancelar", { v: "quiet", theme: "negative", act: "no-acepta" }) }));
     if (paso === 3) return wiz(Object.assign(b, { titulo: "Perfil básico", sub: "El número de expediente, la fecha de alta, la entidad y el conector los pone el sistema.", cuerpo: vDatos(false), atras: "#/registrar/2", act: "con-3", ejemplo: "datos" }));
     if (paso >= 4 && paso <= 7) {
       const bl = CAT.bloques[paso - 4];
@@ -375,7 +402,7 @@
   }
 
   /* ════════ ENTIDAD ════════ */
-  let filtro = "todas", busca = "", rechazando = null, btab = "asignar", asignando = null, conSel = null, ezSel = null, qL = "", fL = "todas", vL = null;
+  let filtro = "todas", busca = "", rechazando = null, btab = "asignar", asignando = null, conSel = null, ezSel = null, qL = "", fL = "todas", vL = null; let fCons = [], conOp = false; let vCon = "cards"; let vSol = "cards"; let aprobando = null, verMiCon = false; const solCol = new Set(); const solAb = new Set(); let popOp = false;
   /* Ícono y tinte por necesidad: el color solo ayuda a reconocerla, el nombre siempre va escrito. */
   const EZ_IC = { "Vivienda": "home", "Ingresos": "banknote", "Alimentación": "shopping-bag", "Salud y Bienestar": "favorite", "Documentación y Trámites": "file-text", "Red de Apoyo": "handshake", "Familia": "users-group", "Infancia y Menores": "users", "Mujer y Cuidados": "hands-heart", "Empleo": "employees", "Formación": "learning", "Movilidad": "car", "Competencias Digitales": "laptop", "Autonomía Personal y Cuidados": "accessibility", "Organización y Dirección": "clipboard-check", "Participación y Comunidad": "megaphone" };
   const EZ_AV = ["orange", "blue", "teal", "pink"];
@@ -392,8 +419,8 @@
     const comparten = mias.filter((p) => p.consent.entidades).length, usan = mias.filter((p) => ajenas(p).length && p.consent.entidades).length;
     const recs = S.recursos.filter((r) => r.entidad === ENT), activos = recs.filter((r) => !r.pausado);
     const hoyTxt = new Date().toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long" }), h = new Date().getHours();
-    const cola = porAsignar.map((p) => ({ ico: ezIco(null, "user", 0), t: nom(p), s: "Autorregistro · " + fecha(p.alta), cta: "Asignar", v: "asignar", id: p.id }))
-      .concat(entrantes.map((s) => { const r = rec(s.recurso); return { ico: ezIco(r.cat), t: r.nombre, s: s.por === ENT ? "Postulada por tu entidad" : "Derivación de " + ent(s.por).nombre, cta: "Decidir", v: "solicitudes", id: s.id }; })).slice(0, 5);
+    const cola = porAsignar.map((p) => ({ ico: ezIco(null, "user", 0), t: nom(p), s: "Autorregistro · " + fecha(p.alta), cta: "Revisar", v: "asignar", id: p.id }))
+      .concat(entrantes.map((s) => { const r = rec(s.recurso); return { ico: ezIco(r.cat), t: r.nombre, s: s.por === ENT ? "Postulada por tu entidad" : "Derivación de " + ent(s.por).nombre, cta: "Revisar", v: "solicitudes", id: s.id }; })).slice(0, 5);
     const ocup = activos.filter((r) => r.cupo).slice(0, 3);
     return '<div class="bc-page stack"><div class="ez-head"><div><p class="ez-fecha">' + esc(hoyTxt[0].toUpperCase() + hoyTxt.slice(1)) + "</p><h1>" + (h < 13 ? "Buenos días" : h < 21 ? "Buenas tardes" : "Buenas noches") + '</h1></div><span class="ez-solo">' + ic("lock") + "Solo lo ve tu entidad</span></div>" +
       '<div class="kpis"><a class="ez-kpi" href="#/personas/solicitudes"><span class="ez-kpi__t">Por decidir<span class="ez-kpi__go" aria-hidden="true">' + ic("arrow-right") + '</span></span><span class="ez-kpi__n">' + (porAsignar.length + entrantes.length) + "</span></a>" +
@@ -401,33 +428,56 @@
       '<div class="cols ez-cols">' +
       card(cardH("Necesita tu decisión", '<a class="bc-back" href="#/personas/solicitudes">Solicitudes</a>') + (cola.length ? cola.map((c) => '<div class="ez-fila">' + c.ico + '<div class="grow"><div class="t">' + esc(c.t) + '</div><div class="s">' + esc(c.s) + "</div></div>" + btn(c.cta, { v: "quiet", size: "small", act: "e-ir", a: { "data-v": c.v, "data-id": c.id } }) + "</div>").join("") : '<p class="mut">Todo al día.</p>')) +
       '<div class="stack">' + card('<div class="ez-red"><div class="ez-red__r">' + ezAnillo(mias.length ? comparten / mias.length : 0, 96, 12, (mias.length ? Math.round((comparten / mias.length) * 100) : 0) + "%", comparten + " de " + mias.length + " personas comparten su itinerario") + '</div><div class="grow stack-s"><h2>En la red</h2><div class="ez-kv"><span class="mut">Usan otras entidades</span><b>' + usan + '</b></div><div class="ez-kv"><span class="mut">' + ic("lock") + "Sin permiso</span><b>" + (mias.length - comparten) + "</b></div></div></div>") +
-      card(cardH("Ocupación", '<a class="bc-back" href="#/recursos">Recursos</a>') + '<div class="stack-s">' + (ocup.length ? ocup.map((r) => { const u = usoRec(r).activas; return '<div class="ez-ocu"><div class="ez-kv"><span>' + esc(r.nombre) + "</span><b>" + u + " / " + r.cupo + '</b></div><div class="bc-bar' + (u >= r.cupo ? " ez-lleno" : "") + '" aria-hidden="true"><i style="width:' + Math.min(100, Math.round((u / r.cupo) * 100)) + '%"></i></div></div>'; }).join("") : '<p class="mut">Sin plazas limitadas.</p>') + "</div>") + "</div></div></div>";
+      card(cardH("Ocupación", '<a class="bc-back" href="#/recursos">Recursos</a>') + '<div class="stack-s ez-ocup">' + (ocup.length ? ocup.map((r) => { const u = usoRec(r).activas; return '<div class="ez-ocu"><div class="ez-kv"><span>' + esc(r.nombre) + "</span><b>" + u + " / " + r.cupo + '</b></div><div class="bc-bar' + (u >= r.cupo ? " ez-lleno" : "") + '" aria-hidden="true"><i style="width:' + Math.min(100, Math.round((u / r.cupo) * 100)) + '%"></i></div></div>'; }).join("") : '<p class="mut">Sin plazas limitadas.</p>') + "</div>") + "</div></div></div>";
   }
   const entrantesDe = () => S.solicitudes.filter((s) => rec(s.recurso).entidad === ENT && (s.estado === "Pendiente" || s.estado === "Falta información"));
+  /* Pestañas internas de Personas: solo en móvil, donde el menú inferior no cabe con sus tres vistas. */
+  const ptabs = (activo) => {
+    const t = [["mis", "Mis personas", S.personas.filter((p) => p.entidad === ENT).length, "#/personas"], ["solicitudes", "Recursos solicitados", entrantesDe().length, "#/personas/solicitudes"], ["asignar", "Asignar conector", S.personas.filter((p) => p.entidad === ENT && !p.conector).length, "#/personas/asignar"]];
+    return '<div class="nwt-tabs bc-subtabs ez-seg ez-ptabs"><div class="nwt-tabs__list" role="tablist" aria-label="Personas">' + t.map(([k, n, c, h]) => '<a class="nwt-tabs__tab' + (k === activo ? " nwt-tabs__tab--active" : "") + '" role="tab" aria-selected="' + (k === activo) + '" href="' + h + '" data-ptab="' + k + '"><span class="nwt-tabs__label"><span class="nwt-tabs__label-text">' + n + '<span class="ez-cnt"> · ' + c + "</span></span></span></a>").join("") + "</div></div>";
+  };
   function ePersonas() {
     const mias = S.personas.filter((p) => p.entidad === ENT);
     const F = { todas: () => true, asignar: (p) => !p.conector, apoyo: (p) => Object.values(p.mapa || {}).includes("r"), otras: (p) => ajenas(p).length && p.consent.entidades };
     if (!F[filtro]) filtro = "todas";
-    const q = busca.toLowerCase(), lista = mias.filter(F[filtro]).filter((p) => !q || (nom(p) + " " + p.id).toLowerCase().includes(q));
+    const q = busca.toLowerCase(), lista = mias.filter(F[filtro]).filter((p) => !fCons.length || fCons.includes(p.conector)).filter((p) => !q || (nom(p) + " " + p.id).toLowerCase().includes(q));
     const EST = { "En seguimiento": "informative", "Abierto": "caution" };
     const red = (p) => { const a = ajenas(p); return !p.consent.entidades ? ic("lock") + "Sin permiso" : a.length ? a.length + " recurso" + (a.length > 1 ? "s" : "") : "—"; };
+    const sAb = (p) => { const n = S.solicitudes.filter((x) => x.persona === p.id && rec(x.recurso).entidad === ENT && abierta(x)).length; return n ? '<span title="' + n + (n === 1 ? " solicitud abierta" : " solicitudes abiertas") + '">' + tag(n + (n === 1 ? " solicitud" : " solicitudes"), "caution") + "</span>" : ""; };
     const ezFila = (p, i) => '<a class="bc-tr ez-tr" href="#/persona/' + esc(p.id) + '" data-p="' + esc(p.id) + '"><span class="ez-per">' + avatar(ini(nom(p)), EZ_AV[i % 4], "small") + '<span><b>' + esc(nom(p)) + '</b><span class="ez-id">' + esc(p.id) + "</span></span></span>" +
-      '<span data-l="Conector">' + (p.conector ? esc(con(p.conector).nombre) : '<span class="bc-pend">Por asignar</span>') + "</span><span>" + mini(p.mapa) + '</span><span class="ez-redc" data-l="En la red">' + red(p) + "</span><span>" + tag(p.estado, EST[p.estado] || "neutral") + "</span></a>";
-    return '<div class="bc-page stack"><div class="ez-head"><h1>Mis personas <span class="ez-n">' + mias.length + "</span></h1></div>" +
-      '<div class="row ez-filtros" role="group" aria-label="Filtro">' + [["todas", "Todas"], ["asignar", "Sin conector"], ["apoyo", "Necesitan apoyo"], ["otras", "En otras entidades"]].map(([k, t]) => '<button type="button" class="bc-chip" data-act="filtro" data-v="' + k + '" aria-pressed="' + (filtro === k) + '">' + t + (k === "todas" ? "" : " · " + mias.filter(F[k]).length) + "</button>").join("") + '<div class="nwt-searchbox ez-busca" nwt-size="medium"><div class="nwt-input-box"><div class="nwt-input-box__content"><div class="nwt-input-box__control"><div class="nwt-searchbox__container">' + ic("search") + '<label class="sr" for="f-busca">Buscar persona</label><input id="f-busca" type="text" class="nwt-searchbox__input" data-busca placeholder="Nombre o número" value="' + esc(busca) + '"></div></div></div></div></div>' + "</div>" +
+      '<span data-l="Conector">' + (p.conector ? esc(con(p.conector).nombre) : '<span class="bc-pend">Por asignar</span>') + "</span><span>" + mini(p.mapa) + '</span><span class="ez-redc" data-l="En la red">' + red(p) + "</span><span class=\"ez-est\">" + tag(p.estado, EST[p.estado] || "neutral") + sAb(p) + "</span></a>";
+    return '<div class="bc-page stack"><div class="ez-head"><h1>Mis personas <span class="ez-n">' + mias.length + "</span></h1></div>" + ptabs("mis") +
+      '<div class="row ez-filtros" role="group" aria-label="Filtro">' + '<div class="ez-popw"><button type="button" class="bc-chip" id="btn-fcon" data-act="pop-con" aria-haspopup="true" aria-expanded="' + conOp + '" aria-pressed="' + (fCons.length > 0) + '">' + ic("user") + "<span>Conector" + (fCons.length ? " · " + fCons.length : "") + ' ▾</span></button>' +
+        (conOp ? '<div class="ez-pop ez-pop--f" role="group" aria-label="Filtrar por conector">' + S.conectores.filter((c) => c.entidad === ENT).map((c, ci) => '<label class="ez-pop__ck"><input type="checkbox" data-fcon="' + c.id + '"' + (fCons.includes(c.id) ? " checked" : "") + ">" + (c.foto ? '<img class="ez-foto ez-foto--xs" src="' + esc(c.foto) + '" alt="" width="28" height="28">' : '<span class="ez-ini ez-t' + (ci % 4) + '" aria-hidden="true">' + esc(ini(c.nombre)) + "</span>") + "<span>" + esc(c.nombre) + "</span><em>" + mias.filter((p) => p.conector === c.id).length + "</em></label>").join("") + (fCons.length ? '<button type="button" class="ez-pop__i" data-act="quitar-con">Quitar filtro</button>' : "") + "</div>" : "") + "</div>" + [["todas", "Todas"], ["asignar", "Sin conector"], ["apoyo", "Necesitan apoyo"], ["otras", "En otras entidades"]].map(([k, t]) => '<button type="button" class="bc-chip" data-act="filtro" data-v="' + k + '" aria-pressed="' + (filtro === k) + '">' + t + (k === "todas" ? "" : " · " + mias.filter(F[k]).length) + "</button>").join("") + '<div class="nwt-searchbox ez-busca" nwt-size="medium"><div class="nwt-input-box"><div class="nwt-input-box__content"><div class="nwt-input-box__control"><div class="nwt-searchbox__container">' + ic("search") + '<label class="sr" for="f-busca">Buscar persona</label><input id="f-busca" type="text" class="nwt-searchbox__input" data-busca placeholder="Nombre o número" value="' + esc(busca) + '"></div></div></div></div></div>' + "</div>" +
       '<div class="bc-tbl"><div class="bc-tr bc-th ez-tr"><span>Persona</span><span>Conector</span><span>Mapa de Vida</span><span>En la red</span><span>Estado</span></div>' + (lista.length ? lista.map(ezFila).join("") : '<div class="bc-tr ez-tr"><span class="mut">Sin resultados.</span></div>') + "</div></div>";
   }
   function eConectores() {
     const cs = S.conectores.filter((c) => c.entidad === ENT);
     const CAP = 12; /* La semilla no trae capacidad por conector: se fija una de referencia para el anillo. */
-    return '<div class="bc-page stack"><h1>Conectores <span class="ez-n">' + cs.length + '</span></h1><div class="cols ez-grid">' + cs.map((c, i) => {
-      const ps = S.personas.filter((p) => p.conector === c.id), act = ps.filter((p) => p.estado !== "Cerrado");
-      const pend = ps.reduce((n, p) => n + solsDe(p.id).filter((s) => s.estado === "Pendiente").length, 0), hoyOn = /^hoy/i.test(c.ultima);
-      return card('<div class="ez-con"><div class="ez-con__h">' + avatar(ini(c.nombre), EZ_AV[i % 4], "large") + '<div class="grow"><b>' + esc(c.nombre) + '</b><span class="ez-sub">' + esc(c.rol) + '</span></div><span class="ez-dot' + (hoyOn ? " on" : "") + '" role="img" aria-label="Última actividad: ' + esc(c.ultima) + '"></span></div>' +
-        '<div class="ez-con__m">' + ezAnillo(act.length / CAP, 88, 10, String(act.length), act.length + " personas activas de " + CAP + " de capacidad", act.length / CAP > 0.7 ? "var(--bc-acc)" : "var(--bc-ink)") +
-        '<div class="grow stack-s"><div class="ez-kv"><span class="mut">Personas activas</span><b>' + act.length + '</b></div><div class="ez-kv"><span class="mut">Por decidir</span><b>' + pend + '</b></div><div class="ez-kv"><span class="mut">Última vez</span><b>' + esc(c.ultima.split(",")[0]) + "</b></div></div></div>" +
-        (ps.length ? '<div class="ez-pila" role="img" aria-label="' + esc("Personas de " + c.nombre + ": " + ps.map(nom).join(", ")) + '">' + ps.slice(0, 5).map((p, k) => '<span class="ez-pila__a ez-t' + (k % 4) + '">' + esc(ini(nom(p))) + "</span>").join("") + (ps.length > 5 ? '<span class="ez-pila__a ez-t3">+' + (ps.length - 5) + "</span>" : "") + "</div>" : '<p class="mut ez-sub">Sin personas asignadas</p>') + "</div>", { a: { "data-con": c.id } });
-    }).join("") + "</div></div>";
+    const dat = (c) => { const ps = S.personas.filter((p) => p.conector === c.id), act = ps.filter((p) => p.estado !== "Cerrado"); return { ps, act, pend: ps.reduce((n, p) => n + solsDe(p.id).filter((x) => x.estado === "Pendiente").length, 0), hoyOn: /^hoy/i.test(c.ultima) }; };
+    const foto = (c, i, tam) => c.foto ? '<img class="ez-foto' + (tam === "s" ? " ez-foto--s" : "") + '" src="' + esc(c.foto) + '" alt="Foto de ' + esc(c.nombre) + '" width="64" height="64">' : avatar(ini(c.nombre), EZ_AV[i % 4], tam === "s" ? "medium" : "large");
+    const contacto = (c) => (c.doc ? "<span>" + esc(c.doc) + "</span>" : "") + (c.tel ? '<a href="tel:' + esc(c.tel.replace(/\s/g, "")) + '">' + esc(c.tel) + "</a>" : "") + (c.email ? '<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>" : "");
+    const chat = (c) => btn("Chat", { v: "quiet", size: "small", act: "chat", a: { "data-c": c.id } });
+    const verTodas = (c, n) => btn("Ver todas · " + n, { v: "quiet", size: "small", act: "ver-con", a: { "data-c": c.id } });
+    const vista = '<div class="ez-vt" role="group" aria-label="Vista">' + [["cards", "Vista de tarjetas", "view-grid"], ["lista", "Vista de lista", "view-list"]].map(([k, t, icn]) => '<button type="button" class="ez-vb" data-act="vcon" data-v="' + k + '" aria-pressed="' + (vCon === k) + '" aria-label="' + t + '" title="' + t + '">' + ic(icn) + "</button>").join("") + "</div>";
+    const personas = (ps, c) => '<div class="ez-pers"><div class="ez-pers__h"><b>Personas · ' + ps.length + "</b>" + (ps.length ? btn("Ver en Personas", { v: "quiet", size: "small", act: "ver-con", a: { "data-c": c.id } }) : '<span class="mut ez-sub">Sin personas asignadas</span>') + "</div></div>";
+    let cuerpo;
+    if (vCon === "lista") {
+      cuerpo = '<div class="bc-tbl"><div class="bc-tr bc-th ez-ct"><span>Conector</span><span>Documento</span><span>Contacto</span><span>Personas</span><span>Por decidir</span><span>Última vez</span><span></span></div>' + cs.map((c, i) => {
+        const d = dat(c);
+        return '<div class="bc-tr ez-ct" data-con="' + c.id + '"><span class="ez-ct__n">' + foto(c, i, "s") + "<span><b>" + esc(c.nombre) + '</b><span class="ez-sub">' + esc(c.rol) + "</span></span></span><span>" + esc(c.doc || "—") + '</span><span class="ez-ct__c">' + (c.tel ? '<a href="tel:' + esc(c.tel.replace(/\s/g, "")) + '">' + esc(c.tel) + "</a>" : "") + (c.email ? '<a href="mailto:' + esc(c.email) + '">' + esc(c.email) + "</a>" : "") + "</span><span>" + (d.ps.length > 3 ? verTodas(c, d.act.length) : d.act.length + " / " + CAP) + "</span><span>" + d.pend + "</span><span>" + esc(c.ultima.split(",")[0]) + "</span><span>" + chat(c) + "</span></div>";
+      }).join("") + "</div>";
+    } else {
+      cuerpo = '<div class="cols ez-grid">' + cs.map((c, i) => {
+        const d = dat(c);
+        return card('<div class="ez-con"><div class="ez-con__h">' + foto(c, i) + '<div class="grow"><b>' + esc(c.nombre) + '</b><span class="ez-sub">' + esc(c.rol) + '</span></div><span class="ez-dot' + (d.hoyOn ? " on" : "") + '" role="img" aria-label="Última actividad: ' + esc(c.ultima) + '"></span></div>' +
+          '<div class="ez-con__m">' + ezAnillo(d.act.length / CAP, 88, 10, String(d.act.length), d.act.length + " personas activas de " + CAP + " de capacidad", d.act.length / CAP > 0.7 ? "var(--bc-acc)" : "var(--bc-ink)") +
+          '<div class="grow stack-s"><div class="ez-kv"><span class="mut">Personas activas</span><b>' + d.act.length + '</b></div><div class="ez-kv"><span class="mut">Por decidir</span><b>' + d.pend + '</b></div><div class="ez-kv"><span class="mut">Última vez</span><b>' + esc(c.ultima.split(",")[0]) + "</b></div></div></div>" +
+          (c.doc || c.tel || c.email ? '<div class="ez-con__c"><div class="ez-con__d">' + contacto(c) + "</div>" + chat(c) + "</div>" : "") +
+          personas(d.ps, c) + "</div>", { a: { "data-con": c.id } });
+      }).join("") + "</div>";
+    }
+    return '<div class="bc-page stack"><div class="ez-head"><h1>Conectores <span class="ez-n">' + cs.length + "</span></h1>" + vista + "</div>" + cuerpo + "</div>";
   }
   const selConector = (pid) => '<label class="sr" for="sel-' + esc(pid) + '">Conector</label>' + selNative("sel-" + esc(pid), S.conectores.filter((c) => c.entidad === ENT).map((c) => '<option value="' + c.id + '">' + esc(c.nombre) + "</option>").join(""));
   function fichaMinima(p, r) {
@@ -438,45 +488,154 @@
       celda("Necesidad", rel.length ? rel.map((d) => esc(d.n) + " · " + TX[p.mapa[d.id]]).join(", ") : "—", peor) + '</div><div class="ez-lock">' + ic("lock") + "Ficha mínima: sin diagnóstico ni notas</div>";
   }
   function eBandeja(vista) {
-    const porAsignar = S.personas.filter((p) => p.entidad === ENT && !p.conector), entrantes = entrantesDe();
-    const decididas = S.solicitudes.filter((s) => rec(s.recurso).entidad === ENT && s.decidida);
+    if (vista === "solicitudes") return eSolicitudes();
+    const porAsignar = S.personas.filter((p) => p.entidad === ENT && !p.conector);
     const pill = (urg) => '<span class="ez-pl' + (urg ? " ez-pl--u" : "") + '">' + (urg ? "24 h" : "5 d") + "</span>";
     const rojasDe = (p) => CAT.dimensiones.filter((d) => p.mapa[d.id] === "r").map((d) => d.n);
     if (vL !== vista) { vL = vista; qL = ""; fL = "todas"; }
-    const FL = vista === "asignar"
-      ? [["todas", "Todas", () => true], ["urgentes", "Necesitan apoyo", (x) => rojasDe(x).length], ["normales", "Sin urgencia", (x) => !rojasDe(x).length]]
-      : [["todas", "Todas", () => true], ["urgentes", "Urgentes", (x) => rec(x.recurso).urg === "Urgente"], ["propias", "De mi entidad", (x) => x.por === ENT], ["otras", "De otras entidades", (x) => x.por !== ENT]];
+    const FL = [["todas", "Todas", () => true], ["urgentes", "Necesitan apoyo", (x) => rojasDe(x).length], ["normales", "Sin urgencia", (x) => !rojasDe(x).length]];
     if (!FL.some(([k]) => k === fL)) fL = "todas";
-    const base = vista === "asignar" ? porAsignar : entrantes, ql = qL.toLowerCase();
-    const txt = (x) => (vista === "asignar" ? nom(x) + " " + x.id : rec(x.recurso).nombre + " " + per(x.persona).nombre).toLowerCase();
+    const base = porAsignar, ql = qL.toLowerCase();
+    const txt = (x) => (nom(x) + " " + x.id).toLowerCase();
     const filt = base.filter(FL.find(([k]) => k === fL)[2]).filter((x) => !ql || txt(x).includes(ql));
-    const barra = '<div class="row ez-filtros" role="group" aria-label="Filtro">' + FL.map(([k, t, f]) => '<button type="button" class="bc-chip" data-act="filtro2" data-v="' + k + '" aria-pressed="' + (fL === k) + '">' + t + (k === "todas" ? "" : " · " + base.filter(f).length) + "</button>").join("") +
-      '<div class="nwt-searchbox ez-busca" nwt-size="medium"><div class="nwt-input-box"><div class="nwt-input-box__content"><div class="nwt-input-box__control"><div class="nwt-searchbox__container">' + ic("search") + '<label class="sr" for="f-busca2">Buscar</label><input id="f-busca2" type="text" class="nwt-searchbox__input" data-busca2 placeholder="' + (vista === "asignar" ? "Nombre o número" : "Recurso o persona") + '" value="' + esc(qL) + '"></div></div></div></div></div></div>';
-    const items = vista === "asignar"
-      ? filt.map((p) => ({ id: p.id, av: avatar(ini(nom(p)), "amber", "small"), t: nom(p), s: "Autorregistro · " + fecha(p.alta), pl: rojasDe(p).length ? pill(true) : "" }))
-      : filt.map((s) => { const r = rec(s.recurso), p = per(s.persona); return { id: s.id, av: avatar(ini(nom(p)), "blue", "small"), t: r.nombre, s: p.nombre + " · " + (s.por === ENT ? "Tu entidad" : ent(s.por).nombre), pl: pill(r.urg === "Urgente") }; });
+    const barra = filtrosBarra(FL, base, "Nombre o número");
+    const items = filt.map((p) => ({ id: p.id, av: avatar(ini(nom(p)), "amber", "small"), t: nom(p), s: "Autorregistro · " + fecha(p.alta), pl: rojasDe(p).length ? pill(true) : "" }));
     const cur = items.find((i) => i.id === ezSel) || items[0];
     const lista = items.map((i) => '<button type="button" class="ez-it" aria-pressed="' + (cur && i.id === cur.id) + '" data-act="e-sel" data-id="' + esc(i.id) + '">' + i.av + '<span class="grow"><span class="ez-it__t">' + esc(i.t) + '</span><span class="ez-it__s">' + esc(i.s) + "</span></span>" + i.pl + "</button>").join("");
-    const mot = (s) => '<div class="row"><label class="sr" for="mot-' + s.id + '">Motivo</label>' + selNative("mot-" + s.id, '<option value="">Motivo del rechazo (obligatorio)…</option><option>No cumple los requisitos de acceso</option><option>Fuera del territorio del recurso</option><option>El recurso no responde a la necesidad</option>') + btn("Confirmar rechazo", { theme: "negative", act: "rechazar", a: { "data-s": s.id } }) + btn("Cancelar", { v: "mute", act: "rechazar-cancel" }) + "</div>";
-    let det = card('<p class="mut">' + (base.length ? "Ninguna coincide con la búsqueda." : vista === "asignar" ? "Nadie esperando conector." : "No hay solicitudes pendientes.") + "</p>");
-    if (vista === "asignar" && cur) {
+    let det = card('<p class="mut">' + (base.length ? "Ninguna coincide con la búsqueda." : "Nadie esperando conector.") + "</p>");
+    if (cur) {
       const p = per(cur.id), rojas = rojasDe(p);
-      det = card('<div class="ez-det"><div class="ez-det__h">' + avatar(ini(nom(p)), "amber", "large") + '<div class="grow"><p class="ez-sub">' + esc(p.id) + " · " + fecha(p.alta) + '</p><h2><a class="bc-plain" href="#/persona/' + esc(p.id) + '">' + esc(nom(p)) + "</a></h2>" + mini(p.mapa) + "</div></div>" +
+      det = card('<div class="ez-det"><div class="ez-det__h">' + avatar(ini(nom(p)), "amber", "large") + '<div class="grow"><p class="ez-sub">' + esc(p.id) + " · " + fecha(p.alta) + '</p><h2><a class="bc-plain" href="#/persona/' + esc(p.id) + '">' + esc(nom(p)) + "</a></h2>" + mini(p.mapa) + "</div>" + btn("Ver perfil completo", { v: "quiet", href: "#/persona/" + encodeURIComponent(p.id) }) + "</div>" +
         '<div class="ez-cells"><div class="ez-cel"><span>Zona</span><b>' + esc(p.municipio + " · " + p.cp) + '</b></div><div class="ez-cel"><span>Contacto</span><b>' + esc(p.canal + " · " + p.idioma) + '</b></div><div class="ez-cel' + (rojas.length ? " ez-cel--r" : "") + '"><span>Necesita apoyo</span><b>' + (rojas.length ? esc(rojas.join(", ")) : "Nada urgente") + "</b></div></div>" +
-        '<div class="ez-map"><div class="ez-map__h"><h3>Mapa de Vida</h3>' + btn("Ver perfil completo", { v: "quiet", size: "small", href: "#/persona/" + encodeURIComponent(p.id) }) + "</div>" + perfilMapa(p.mapa) + "</div>" +
-        
-        '<div class="ez-dec">' + btn("Asignar conector", { icon: "user-plus", act: "asignar-ab", a: { "data-p": p.id, id: "btn-asignar-ab" } }) + "</div></div>", { cls: "ez-detcard", a: { "data-asignar": p.id } });
+        '<div class="ez-con"><h3>Conectores recomendados</h3><ul class="ez-conl">' + S.conectores.filter((c) => c.entidad === ENT).sort((x, y) => S.personas.filter((q) => q.conector === x.id).length - S.personas.filter((q) => q.conector === y.id).length).map((c, ci) => '<li class="ez-conr"><span class="ez-cr">' + (c.foto ? '<img class="ez-foto ez-foto--m" src="' + esc(c.foto) + '" alt="" width="44" height="44">' : '<span class="ez-ini ez-ini--m ez-t' + (ci % 4) + '" aria-hidden="true">' + esc(ini(c.nombre)) + "</span>") + '<span class="ez-cr__t"><b>' + esc(c.nombre) + (ci === 0 ? ' <span class="ez-menos">Menos carga</span>' : "") + "</b><span>" + esc(c.rol) + " · " + (n1 => n1 + (n1 === 1 ? " persona" : " personas"))(S.personas.filter((x) => x.conector === c.id).length) + "</span></span></span>" + btn("Asignar", { size: "small", act: "asignar-a", a: { "data-p": p.id, "data-c": c.id, id: "btn-asignar-" + c.id } }) + "</li>").join("") + "</ul></div>" +
+        "</div>", { cls: "ez-detcard", a: { "data-asignar": p.id } });
     }
-    if (vista === "solicitudes" && cur) {
-      const s = S.solicitudes.find((x) => x.id === cur.id), r = rec(s.recurso), p = per(s.persona);
-      det = card('<div class="ez-det"><div class="ez-det__h">' + ezIco(r.cat) + '<div class="grow"><p class="ez-sub">' + esc(s.por === ENT ? "Tu entidad" : ent(s.por).nombre) + " · " + fecha(s.fecha) + "</p><h2>" + esc(r.nombre) + "</h2></div>" + st(s.estado) + "</div>" + fichaMinima(p, r) +
-        '<div class="ez-map"><div class="ez-map__h"><h3>' + (p.entidad === ENT ? "Mapa de Vida" : "Perfil") + "</h3>" + btn(p.entidad === ENT ? "Ver perfil completo" : "Ver ficha mínima", { v: "quiet", size: "small", href: "#/persona/" + encodeURIComponent(p.id) }) + "</div>" +
-          (p.entidad === ENT ? perfilMapa(p.mapa) : '<p class="mut">Esta persona es de ' + esc(ent(p.entidad).nombre) + ". Solo ves lo necesario para decidir; el diagnóstico completo no se comparte.</p>") + "</div>" +
-        '<div class="ez-dec ez-dec--sol">' + (rechazando === s.id ? mot(s)
-          : btn("Aprobar", { icon: "check", act: "decidir", a: { "data-s": s.id, "data-e": "Aprobada" } }) + btn("Lista de espera", { v: "quiet", act: "decidir", a: { "data-s": s.id, "data-e": "En lista de espera" } }) + btn("Pedir información", { v: "quiet", act: "decidir", a: { "data-s": s.id, "data-e": "Falta información" } }) + btn("Rechazar", { v: "quiet", theme: "negative", act: "rechazar-ab", a: { "data-s": s.id } })) + "</div></div>", { cls: "bc-minima ez-detcard", a: { "data-sol": s.id } });
+    return '<div class="bc-page stack"><h1>Asignar conector</h1>' + ptabs(vista) + barra + '<div class="ez-band"><div class="ez-izq"><h2 class="ez-lh">Personas</h2><div class="ez-lista">' + lista + '</div></div><div class="ez-der">' + det + "</div></div></div>";
+  }
+  const filtrosBarra = (FL, base, ph) => '<div class="row ez-filtros" role="group" aria-label="Filtro">' + FL.map(([k, t, f]) => '<button type="button" class="bc-chip" data-act="filtro2" data-v="' + k + '" aria-pressed="' + (fL === k) + '">' + t + (k === "todas" ? "" : " · " + base.filter(f).length) + "</button>").join("") +
+    '<div class="nwt-searchbox ez-busca" nwt-size="medium"><div class="nwt-input-box"><div class="nwt-input-box__content"><div class="nwt-input-box__control"><div class="nwt-searchbox__container">' + ic("search") + '<label class="sr" for="f-busca2">Buscar</label><input id="f-busca2" type="text" class="nwt-searchbox__input" data-busca2 placeholder="' + ph + '" value="' + esc(qL) + '"></div></div></div></div></div></div>';
+
+  /* ── Solicitudes de recursos: una tarjeta por persona con todo lo que pide a la entidad ── */
+  const ACTIVAS = ["Aprobada", "Pendiente", "En lista de espera", "Falta información"];
+  const abierta = (s) => s.estado === "Pendiente" || s.estado === "Falta información";
+  const dimDe = (r) => CAT.dimensiones.find((d) => d.cat === r.cat);
+  const habiles = (a, b) => { let n = 0; const d = new Date(a + "T00:00"), f = new Date(b + "T00:00"); while (d < f) { d.setDate(d.getDate() + 1); if (d.getDay() % 6) n++; } return n; };
+  const spPlazo = (s) => {
+    if (s.estado === "Falta información") return { t: "Plazo en pausa hasta que responda", venc: false, q: 99 };
+    const q = (rec(s.recurso).urg === "Urgente" ? 1 : 5) - habiles(s.fecha, hoy());
+    return q < 0 ? { t: "Plazo vencido hace " + -q + (q === -1 ? " día hábil" : " días hábiles"), venc: true, q } : { t: q === 0 ? "Vence hoy" : "Quedan " + q + (q === 1 ? " día hábil" : " días hábiles"), venc: false, q };
+  };
+  /* Única fuente de las dos reglas: «similar» solo informa; «bloqueo» quita Aprobar.
+     Lo de otras entidades solo cuenta si la persona autorizó compartir. */
+  const avisosSol = (s) => {
+    const r = rec(s.recurso), p = per(s.persona), u = usoRec(r), otras = solsDe(p.id).filter((x) => x.id !== s.id && ACTIVAS.includes(x.estado));
+    const ve = (x) => rec(x.recurso).entidad === ENT || x.por === ENT || !!p.consent.entidades;
+    const similar = otras.filter((x) => rec(x.recurso).cat === r.cat && ve(x));
+    const previa = otras.find((x) => x.recurso === r.id && (!abierta(x) || x.fecha < s.fecha || (x.fecha === s.fecha && x.id < s.id)));
+    const mismaNec = otras.find((x) => rec(x.recurso).cat === r.cat);
+    const bloqueo = !abierta(s) ? null
+      : r.pausado ? { k: "pausa", t: "El recurso está pausado y no admite personas nuevas." }
+      : previa ? { k: "duplicada", t: "Ya tiene otra solicitud activa a este recurso (" + previa.estado.toLowerCase() + ")." }
+      : mismaNec ? { k: "necesidad", t: "Ya tiene una solicitud de " + r.cat + " en curso. No se puede pedir lo mismo en dos lugares a la vez." }
+      : u.lleno ? { k: "cupo", t: "Las " + r.cupo + " plazas están ocupadas. Solo puede pasar a lista de espera." } : null;
+    return { similar, bloqueo };
+  };
+  const SP_SEM = { r: ["Necesita apoyo", "caution"], a: ["En camino", "clock"], v: ["Estable", "check-circle"] };
+  const SP_EST = { "Aprobada": ["aprobado", "aprobados"], "Pendiente": ["pendiente", "pendientes"], "En lista de espera": ["en lista de espera", "en lista de espera"], "Falta información": ["a falta de información", "a falta de información"] };
+  const spLockRed = '<div class="sp-lock" data-aviso="sin-permiso">' + ic("lock") + "<span>No ves si tiene recursos en otras entidades: no autorizó compartir su itinerario.</span></div>";
+  /* Un aviso por categoría: separa lo que pide ahora a la vez de lo que ya tiene activo. */
+  const spAvisos = (abiertas) => {
+    const ids = new Set(abiertas.map((s) => s.id)), porCat = {};
+    abiertas.forEach((s) => avisosSol(s).similar.forEach((x) => { const c = rec(x.recurso).cat; (porCat[c] = porCat[c] || new Map()).set(x.id, x); }));
+    const frases = Object.entries(porCat).map(([c, m]) => {
+      const n = ezCat(c).n, todas = [...m.values()], aqui = todas.filter((x) => ids.has(x.id)), cuenta = {}, partes = [];
+      if (aqui.length > 1) partes.push("Pide " + aqui.length + " recursos de " + n + " a tu entidad a la vez");
+      todas.filter((x) => !ids.has(x.id)).forEach((x) => { const k = x.estado + "|" + rec(x.recurso).entidad; cuenta[k] = (cuenta[k] || 0) + 1; });
+      Object.entries(cuenta).forEach(([k, q]) => { const [e, en] = k.split("|"); partes.push((partes.length ? "ya tiene " : "Ya tiene ") + q + (q === 1 ? " recurso de " : " recursos de ") + n + " " + SP_EST[e][q === 1 ? 0 : 1] + " en " + (en === ENT ? "tu entidad" : esc(ent(en).nombre))); });
+      return partes.join(" y ") + ".";
+    }).filter((f) => f.length > 1);
+    const tx = frases.join(" ") + " Es informativo: puedes decidir igualmente.";
+    return frases.length ? '<span class="sp-tag" data-aviso="similar" tabindex="0" title="' + tx + '" aria-label="Recurso similar. ' + tx + '">' + ic("info-circle") + "Solicita varios recursos similares</span>" : "";
+  };
+  /* Un solo nombre por persona: el corto de la ficha mínima si es de otra entidad. */
+  const spNombre = (p) => p.entidad === ENT ? nom(p) : p.nombre + " " + p.apellidos[0] + ".";
+  /* Panel igual para toda persona: la identidad va en el encabezado; aquí solo origen y necesidad ligada a lo que pide. */
+  function spLinea(g) {
+    const p = g.p, mia = p.entidad === ENT, ORD = { r: 0, a: 1 };
+    const nec = [...new Set(g.ab.concat(g.de).map((s) => (dimDe(rec(s.recurso)) || {}).id))].map((id) => CAT.dimensiones.find((d) => d.id === id))
+      .filter((d) => d && ORD[p.mapa[d.id]] != null).sort((x, y) => ORD[p.mapa[x.id]] - ORD[p.mapa[y.id]]).slice(0, 2);
+    return '<div class="sp-linea"><span>' + ic("building") + (mia ? "Tu entidad" + (p.conector ? " · Conector: " + esc(con(p.conector).nombre) : " · Sin conector") : esc(ent(p.entidad).nombre)) + "</span>" +
+      nec.map((d) => '<span class="sp-dim sp-dim--' + p.mapa[d.id] + '">' + ic(SP_SEM[p.mapa[d.id]][1]) + esc(d.n) + " · " + SP_SEM[p.mapa[d.id]][0] + "</span>").join("") +
+      spAvisos(g.ab) + (vSol === "lista" ? btn(mia ? "Ver perfil" : "Ver ficha mínima", { v: "quiet", size: "small", href: "#/persona/" + encodeURIComponent(p.id) }) : "") + (mia ? "" : '<span class="sp-minima" data-aviso="ficha-minima">' + ic("lock") + "Ficha mínima</span>") + "</div>";
+  }
+  function spFila(s, p) {
+    const r = rec(s.recurso), d = dimDe(r), v = d && p.mapa[d.id], pz = spPlazo(s), u = usoRec(r), { bloqueo } = avisosSol(s), op = popOp === s.id;
+    const cab = '<div class="sp-sol__h">' + (d ? gi(d) : ezIco(r.cat)) + '<div class="grow"><h3>' + esc(r.nombre) + '</h3><p class="sp-meta">' + (s.por === ENT ? "Postulada por tu entidad" : "Derivada por " + esc(ent(s.por).nombre)) + " · " + fecha(s.fecha) + "</p></div>" + (s.estado === "Pendiente" ? "" : st(s.estado)) + "</div>";
+    const chips = '<div class="sp-chips">' + (v ? '<span class="sp-chip sp-chip--' + v + '">' + ic(SP_SEM[v][1]) + "Responde a " + esc(d.n) + ": " + SP_SEM[v][0].toLowerCase() + "</span>" : "") +
+      '<span class="sp-chip' + (pz.venc ? " sp-chip--r" : "") + '">' + ic(pz.venc ? "caution" : "clock") + pz.t + "</span>" +
+      (r.cupo ? '<span class="sp-chip' + (u.libres ? "" : " sp-chip--r") + '" data-plazas="' + u.libres + '">' + ic("users") + (u.libres ? u.libres + " de " + r.cupo + " plazas libres" : "Sin plazas libres · " + r.cupo + " de " + r.cupo + " ocupadas") + "</span>" : "") + "</div>";
+    const item = (t, a, neg) => '<button type="button" role="menuitem" class="ez-pop__i' + (neg ? " ez-pop__i--neg" : "") + '"' + a + ">" + t + "</button>";
+    const menu = () => '<div class="ez-popw sp-popw">' + btn("Otras opciones", { v: "quiet", act: "pop-dec", iconEnd: "chevron-down", a: Object.assign({ "data-s": s.id, "aria-haspopup": "menu", "aria-expanded": String(op), id: "btn-otras-" + s.id }, op ? { "aria-controls": "pop-" + s.id } : {}) }) +
+      (op ? '<div class="ez-pop" id="pop-' + s.id + '" role="menu" aria-label="Otras decisiones sobre ' + esc(r.nombre) + '">' +
+        (s.estado !== "En lista de espera" ? item("Lista de espera", ' data-act="decidir" data-s="' + s.id + '" data-e="En lista de espera"') : "") +
+        (s.estado === "Pendiente" ? item("Pedir información", ' data-act="decidir" data-s="' + s.id + '" data-e="Falta información"') : "") +
+        item("Rechazar", ' data-act="rechazar-ab" data-s="' + s.id + '"', true) + "</div>" : "") + "</div>";
+    let acc;
+    if (rechazando === s.id) {
+      const id = "mot-" + s.id;
+      acc = '<div class="sp-rech" role="group" aria-labelledby="rt-' + s.id + '"><p class="sp-rech__t" id="rt-' + s.id + '">Rechazar ' + esc(r.nombre) + "</p>" +
+        '<label for="' + id + '">Motivo del rechazo (obligatorio)</label>' + selNative(id, '<option value="">Selecciona un motivo…</option><option>No cumple los requisitos de acceso</option><option>Fuera del territorio del recurso</option><option>El recurso no responde a la necesidad</option><option>Sin plazas disponibles</option>', "", ' required aria-required="true" aria-describedby="' + id + '-h" data-mot="' + s.id + '"') +
+        '<div class="sp-hint" id="' + id + '-h">' + ic("caution") + "<span>Sin motivo no se puede confirmar. " + (s.por === ENT ? "El conector" : esc(ent(s.por).nombre)) + " lo recibirá para buscar otro recurso.</span></div>" +
+        '<label for="txt-' + s.id + '">Mensaje para quien postuló (opcional)</label><textarea id="txt-' + s.id + '" class="sp-txt"></textarea>' +
+        '<div class="sp-act">' + btn("Confirmar rechazo", { theme: "negative", icon: "close-circle", act: "rechazar", a: { "data-s": s.id, disabled: "" } }) + btn("Cancelar", { v: "quiet", act: "rechazar-cancel", a: { "data-s": s.id } }) + "</div></div>";
+    } else if (bloqueo) {
+      const nd = '<div class="sp-nodisp" data-bloqueo="' + bloqueo.k + '">' + ic("lock") + "<span><b>No disponible.</b> " + esc(bloqueo.t) + "</span></div>";
+      acc = nd + '<div class="sp-act" role="group" aria-label="Decidir ' + esc(r.nombre) + '">' + (bloqueo.k === "cupo"
+        ? btn("Pasar a lista de espera", { icon: "clock", act: "decidir", a: { "data-s": s.id, "data-e": "En lista de espera" } })
+        : menu()) + "</div>";
+    } else {
+      acc = '<div class="sp-act" role="group" aria-label="Decidir ' + esc(r.nombre) + '">' + btn("Aprobar", { icon: "check", act: "aprobar-ab", a: { "data-s": s.id } }) + menu() + "</div>";
     }
-    const mAs = asignando && vista === "asignar" && per(asignando) ? '<div class="ez-mb" data-act="asignar-cancel"></div><div class="ez-modal" role="dialog" aria-modal="true" aria-labelledby="ez-mt"><h2 id="ez-mt">Asignar conector</h2><p class="mut">Elige quién acompañará a ' + esc(nom(per(asignando))) + '.</p><div class="ez-modal__l" role="radiogroup" aria-label="Conector">' + S.conectores.filter((c) => c.entidad === ENT).map((c) => radio(conSel === c.id, esc(c.nombre) + ' <span class="mut">· ' + esc(c.rol) + "</span>", 'data-act="asignar-sel" data-c="' + c.id + '"')).join("") + '</div><div class="ez-modal__f">' + btn("Cancelar", { v: "mute", act: "asignar-cancel" }) + btn("Asignar", { act: "asignar", a: { "data-p": asignando, id: "btn-asignar" } }) + "</div></div>" : "";
-    return '<div class="bc-page stack"><h1>' + (vista === "asignar" ? "Por asignar" : "Solicitudes") + '</h1>' + barra + '<div class="ez-band"><div class="ez-izq"><div class="ez-lista">' + lista + "</div>" + (vista === "solicitudes" && decididas.length ? '<div class="ez-dc"><h3>Decididas</h3>' + decididas.map((x) => '<div class="ez-dc__r"><span class="grow">' + esc(rec(x.recurso).nombre) + ' <span class="mut">· ' + esc(per(x.persona).nombre) + (x.motivo ? " · " + esc(x.motivo) : "") + "</span></span>" + st(x.estado) + "</div>").join("") + "</div>" : "") + '</div><div class="ez-der">' + det + "</div></div>" + mAs + "</div>";
+    return '<li class="sp-sol' + (pz.venc ? " sp-sol--venc" : "") + (bloqueo ? " sp-sol--nd" : "") + '" data-sol="' + s.id + '">' + cab + chips + acc + "</li>";
+  }
+  const spDecidida = (s) => {
+    const r = rec(s.recurso), d = dimDe(r);
+    return '<div class="sp-decr" data-dec="' + s.id + '">' + (d ? gi(d) : ezIco(r.cat)) + '<div class="grow"><b>' + esc(r.nombre) + "</b>" + (typeof s.decidida === "string" ? ' <span class="mut">· decidida el ' + fecha(s.decidida) + "</span>" : "") +
+      (s.motivo ? '<div class="sp-motivo">' + ic("close-circle") + "<span><b>Motivo:</b> " + esc(s.motivo) + "</span></div>" : "") + "</div>" + st(s.estado) + "</div>";
+  };
+  /* Solicitudes de una persona a tu entidad: la misma pieza en Recursos solicitados y en su ficha. */
+  const spGrupo = (p) => { const deMi = S.solicitudes.filter((s) => s.persona === p.id && rec(s.recurso).entidad === ENT); return { p, ab: deMi.filter(abierta).sort((a, b) => spPlazo(a).q - spPlazo(b).q), de: deMi.filter((s) => s.decidida) }; };
+  const spSols = (g) => '<section class="sp-sols" aria-label="Solicitudes de ' + esc(spNombre(g.p)) + '">' + (g.p.consent.entidades ? "" : spLockRed) +
+    (g.ab.length ? '<h3 class="sp-h4">Por decidir · ' + g.ab.length + '</h3><ul class="sp-lista">' + g.ab.map((s) => spFila(s, g.p)).join("") + "</ul>" : '<p class="sp-mas">Todo decidido con esta persona.</p>') +
+    (g.de.length ? '<details class="sp-dec" open><summary>Ya decididas con esta persona · ' + g.de.length + ic("chevron-down") + "</summary>" + g.de.map(spDecidida).join("") + "</details>" : "") + "</section>";
+  function eSolicitudes() {
+    if (vL !== "solicitudes") { vL = "solicitudes"; qL = ""; fL = "todas"; }
+    const deMi = S.solicitudes.filter((s) => rec(s.recurso).entidad === ENT), abiertas = deMi.filter(abierta);
+    /* Quien ya no tiene nada abierto sigue visible el día que se decidió: el historial no desaparece al decidir. */
+    const ids = [...new Set(abiertas.map((s) => s.persona).concat(deMi.filter((s) => s.decidida === hoy()).map((s) => s.persona)))];
+    const minQ = (g) => g.ab.length ? Math.min(...g.ab.map((s) => spPlazo(s).q)) : 1e9;
+    const grupos = ids.map((id) => ({ p: per(id), ab: abiertas.filter((s) => s.persona === id).sort((a, b) => spPlazo(a).q - spPlazo(b).q), de: deMi.filter((s) => s.persona === id && s.decidida) })).filter((g) => g.p).sort((x, y) => minQ(x) - minQ(y));
+    const FL = [["todas", "Todas", () => true], ["vencidas", "Fuera de plazo", (g) => g.ab.some((s) => spPlazo(s).venc)], ["varias", "Piden varios recursos", (g) => g.ab.length > 1], ["otras", "De otras entidades", (g) => g.p.entidad !== ENT]];
+    if (!FL.some(([k]) => k === fL)) fL = "todas";
+    const ql = qL.toLowerCase(), txt = (g) => (nom(g.p) + " " + g.p.id + " " + g.ab.concat(g.de).map((s) => rec(s.recurso).nombre).join(" ")).toLowerCase();
+    const vis = grupos.filter(FL.find(([k]) => k === fL)[2]).filter((g) => !ql || txt(g).includes(ql));
+    const lista = vSol === "lista", abierta2 = (g) => lista ? solAb.has(g.p.id) : !solCol.has(g.p.id);
+    /* El encabezado es la única identidad de la tarjeta; en vista de lista además la abre y la cierra. */
+    const fila = (g) => {
+      const ab = abierta2(g), n = g.ab.length, id = esc(g.p.id);
+      const ident = avatar(ini(nom(g.p)), g.p.entidad === ENT ? "blue" : "teal") + '<span class="sp-row__n"><b id="h-' + id + '">' + esc(spNombre(g.p)) + "</b><small>" + id + "</small></span>";
+      if (!lista) return '<div class="sp-row sp-row--fija"><button type="button" class="sp-row__tg" data-act="sol-plegar" data-p="' + id + '" aria-expanded="' + ab + '" aria-controls="b-' + id + '">' + ident + "</button>" +
+        btn(g.p.entidad === ENT ? "Ver perfil" : "Ver ficha mínima", { v: "quiet", size: "small", href: "#/persona/" + encodeURIComponent(g.p.id) }) +
+        '<button type="button" class="sp-row__ch" data-act="sol-plegar" data-p="' + id + '" aria-expanded="' + ab + '" aria-label="' + (ab ? "Plegar" : "Desplegar") + '">' + ic("chevron-down") + "</button></div>";
+      const inner = ident + (!ab && n ? '<span class="sp-row__r">' + esc(g.ab.map((x) => rec(x.recurso).nombre).join(" · ")) + "</span>" : '<span class="grow"></span>') +
+        '<span class="sp-row__c">' + (n ? n + " por decidir" : "Todo decidido") + "</span>" + ic("chevron-down");
+      return '<button type="button" class="sp-row" data-act="sol-abrir" data-p="' + id + '" aria-expanded="' + ab + '" aria-controls="b-' + id + '">' + inner + "</button>";
+    };
+    const tarjeta = (g) => '<article class="sp-card' + (lista ? " sp-card--lista" : "") + (abierta2(g) ? " sp-card--abierta" : "") + '" data-persona="' + esc(g.p.id) + '" aria-labelledby="h-' + esc(g.p.id) + '">' + fila(g) + '<div class="sp-card__b" id="b-' + esc(g.p.id) + '">' + spLinea(g) + spSols(g) + "</div></article>";
+    return '<div class="bc-page stack"><div><h1>Recursos solicitados</h1><p class="sp-intro">Cada persona con su situación y todo lo que pide a tu entidad.</p></div>' + ptabs("solicitudes") +
+      
+      filtrosBarra(FL, grupos, "Persona o recurso").replace(/<\/div>$/, '<div class="ez-vt sp-vt" role="group" aria-label="Vista">' + [["cards", "Vista de tarjetas", "view-grid"], ["lista", "Vista de lista", "view-list"]].map(([k, t, icn]) => '<button type="button" class="ez-vb" data-act="vsol" data-v="' + k + '" aria-pressed="' + (vSol === k) + '" aria-label="' + t + '" title="' + t + '">' + ic(icn) + "</button>").join("") + "</div>" + "</div>") +
+      '<div class="sp-feed">' + (vis.length ? vis.map(tarjeta).join("") : card('<p class="mut">' + (grupos.length ? "Ninguna persona coincide con el filtro." : "No hay solicitudes pendientes.") + "</p>")) + "</div></div>";
   }
 
   /* ── Mis recursos: lo que la entidad ofrece a la red ── */
@@ -484,18 +643,21 @@
   const REC_OPC = { tipo: ["Individual", "Grupo", "Evento"], modo: ["Libre", "Inscripción", "Solicitud"], urg: ["Normal", "Urgente"] };
   const REQ_REC = ["nombre", "cat", "tipo", "modo", "urg"];
   const EJ_REC = { nombre: "Acompañamiento en trámites de empadronamiento", cat: "Documentación y Trámites", tipo: "Individual", modo: "Solicitud", urg: "Normal", cupo: "10", desc: "Cita individual para preparar y presentar el empadronamiento.", requisitos: "Residir en Madrid" };
-  const usoRec = (r) => { const ss = S.solicitudes.filter((s) => s.recurso === r.id); return { activas: ss.filter((s) => s.estado === "Aprobada").length, pend: ss.filter((s) => s.estado === "Pendiente" || s.estado === "Falta información").length, espera: ss.filter((s) => s.estado === "En lista de espera").length }; };
+  const usoRec = (r) => {
+    const ss = S.solicitudes.filter((s) => s.recurso === r.id), activas = (r.base || 0) + ss.filter((s) => s.estado === "Aprobada").length;
+    return { activas, pend: ss.filter((s) => s.estado === "Pendiente" || s.estado === "Falta información").length, espera: ss.filter((s) => s.estado === "En lista de espera").length, libres: r.cupo ? Math.max(0, r.cupo - activas) : null, lleno: !!r.cupo && activas >= r.cupo };
+  };
   function eRecursos() {
     const rs = S.recursos.filter((r) => r.entidad === ENT), activos = rs.filter((r) => !r.pausado).length;
     return '<div class="bc-page stack"><div class="bc-head"><div class="stack-s"><h1>Mis recursos</h1><p class="mut">' + activos + " de " + rs.length + " activos en la red</p></div>" + btn("Nuevo recurso", { icon: "plus", href: "#/recurso/nuevo", a: { id: "btn-nuevo-rec" } }) + "</div>" +
       '<div class="cols ez-grid">' + rs.map((r) => {
-        const u = usoRec(r), on = !r.pausado, lleno = r.cupo && u.activas >= r.cupo, urg = r.urg === "Urgente";
+        const u = usoRec(r), on = !r.pausado, lleno = u.lleno, urg = r.urg === "Urgente";
         const estado = !on ? ["Pausado", ""] : u.pend ? [u.pend + " por decidir", "ez-uso__e--a"] : lleno ? ["Completo", ""] : ["Al día", "ez-uso__e--v"];
         return card('<div class="ez-rec__h">' + ezIco(r.cat) + '<span class="grow"></span><a class="ez-edit" href="#/recurso/' + esc(r.id) + '" aria-label="Editar ' + esc(r.nombre) + '">' + ic("edit") + "</a>" +
           '<button type="button" role="switch" class="ez-sw" aria-checked="' + on + '" aria-label="' + (on ? "Pausar " : "Reactivar ") + esc(r.nombre) + '" data-act="rec-pausa" data-r="' + esc(r.id) + '"><i></i></button></div>' +
           "<div><h2>" + esc(r.nombre) + '</h2><p class="ez-sub">' + esc(ezCat(r.cat).n) + "</p></div>" +
           '<div class="row ez-chips"><span class="ez-chip">' + esc(MODO_T[r.modo] || r.modo) + '</span><span class="ez-chip' + (urg ? " ez-chip--a" : "") + '">' + (urg ? "24 h" : "5 días") + "</span></div>" +
-          '<div class="ez-uso"><div class="ez-uso__r"><span class="ez-uso__n">' + u.activas + "<small>" + (r.cupo ? " / " + r.cupo : " personas") + '</small></span><span class="ez-uso__e ' + estado[1] + '">' + estado[0] + '</span></div><div class="bc-bar' + (lleno || !on ? " ez-lleno" : "") + '" aria-hidden="true"><i style="width:' + (r.cupo ? Math.min(100, Math.round((u.activas / r.cupo) * 100)) : 100) + '%"></i></div></div>', { cls: "ez-rec" + (on ? "" : " ez-off"), a: { "data-recurso": r.id } });
+          '<div class="ez-uso"><div class="ez-uso__r"><span class="ez-uso__n">' + u.activas + "<small>" + (r.cupo ? " / " + r.cupo : (u.activas === 1 ? " persona" : " personas")) + '</small></span><span class="ez-uso__e ' + estado[1] + '">' + estado[0] + '</span></div><div class="bc-bar' + (lleno || !on ? " ez-lleno" : "") + '" aria-hidden="true"><i style="width:' + (r.cupo ? Math.min(100, Math.round((u.activas / r.cupo) * 100)) : 100) + '%"></i></div></div>', { cls: "ez-rec" + (on ? "" : " ez-off"), a: { "data-recurso": r.id } });
       }).join("") + "</div></div>";
   }
   function eRecurso(id) {
@@ -507,9 +669,9 @@
     const err = (k) => D.err[k] ? '<div class="ez-err" role="alert" data-k="' + k + '">' + ic("caution") + esc(D.err[k]) + "</div>" : "";
     const sec = (titulo, cuerpo, k, cls) => '<section class="ez-sec' + (cls ? " " + cls : "") + '"><h2>' + titulo + "</h2>" + cuerpo + (k ? err(k) : "") + "</section>";
     const segm = (k, act, opts, etiqueta) => '<div class="ez-segm" role="radiogroup" aria-label="' + etiqueta + '">' + opts.map(([v, t]) => '<button type="button" role="radio" aria-checked="' + (x[k] === v) + '" data-act="' + act + '" data-v="' + esc(v) + '">' + t + "</button>").join("") + "</div>";
-    return '<div class="bc-page stack"><div class="ez-top"><a class="ez-x" href="#/recursos" aria-label="Cerrar">' + ic("close") + "</a><h1>" + (r ? "Editar recurso" : "Nuevo recurso") + "</h1>" + btn(r ? "Guardar cambios" : "Publicar en la red", { act: "rec-guardar", a: { id: "btn-sig" } }) + "</div>" +
+    return '<div class="bc-page stack"><div class="ez-top"><a class="ez-x" href="#/recursos" aria-label="Cerrar">' + ic("close") + "</a><h1>" + (r ? "Editar recurso" : "Nuevo recurso") + "</h1></div>" +
       (r ? "" : '<div class="bc-ejemplo">' + btn("Completar con datos de ejemplo", { v: "quiet", size: "small", icon: "sparkles", act: "ejemplo", a: { "data-k": "rec" } }) + "</div>") +
-      '<div class="ez-rg"><div class="stack ez-form">' +
+      '<div class="ez-rg' + (T === "detalles" ? "" : " ez-rg--solo") + '"><div class="stack ez-form">' +
       '<div class="nwt-tabs bc-subtabs"><div class="nwt-tabs__list" role="tablist" aria-label="Secciones">' + [["basico", "Básico"], ["acceso", "Acceso"], ["detalles", "Detalles"]].map(([k, t]) => '<button type="button" class="nwt-tabs__tab' + (k === T ? " nwt-tabs__tab--active" : "") + '" role="tab" aria-selected="' + (k === T) + '" data-act="e-tab" data-v="' + k + '"><span class="nwt-tabs__label"><span class="nwt-tabs__label-text">' + t + "</span></span></button>").join("") + "</div></div>" +
       (T === "basico" ? '<section class="ez-sec"><label class="ez-nombre" for="f-nombre"><span>Nombre</span><input id="f-nombre" data-ez-f="nombre" value="' + esc(x.nombre || "") + '" placeholder="¿Qué ofrece tu entidad?" autocomplete="off"' + (D.err.nombre ? ' aria-invalid="true"' : "") + "></label>" + err("nombre") + "</section>" +
       sec("Qué necesidad atiende", '<div class="ez-cats" role="radiogroup" aria-label="Necesidad">' + CATS.map((k) => { const m = ezCat(k); return '<button type="button" role="radio" class="ez-cat" aria-checked="' + (x.cat === k) + '" data-act="e-cat" data-v="' + esc(k) + '">' + ic(m.ic) + "<span>" + esc(m.n) + "</span></button>"; }).join("") + "</div>", "cat") : "") +
@@ -517,10 +679,12 @@
       '<div class="ez-dos">' + sec("Respuesta", segm("urg", "e-urg", [["Normal", "5 días"], ["Urgente", "24 h"]], "Plazo de respuesta"), "urg") +
       sec("Plazas", '<div class="ez-cupo"><button type="button" class="ez-pm" data-act="e-cupo" data-d="-1" aria-label="Menos plazas">' + ic("minus") + '</button><span class="ez-cupo__n" aria-live="polite">' + (cupo || "Sin límite") + '</span><button type="button" class="ez-pm" data-act="e-cupo" data-d="1" aria-label="Más plazas">' + ic("plus") + "</button></div>", "cupo") + "</div>" : "") +
       (T === "detalles" ? sec("Formato", segm("tipo", "e-tipo", REC_OPC.tipo.map((t) => [t, t]), "Formato"), "tipo") +
-      sec("Detalles", '<div class="grid2">' + fld("desc", "Descripción breve", { opc: true }) + fld("requisitos", "Requisito de acceso", { opc: true }) + "</div>") : "") + "</div>" +
-      '<aside class="ez-prev"><span class="ez-prev__t">' + ic("eye") + 'Así lo verán los conectores</span><div class="ez-prev__c"><div class="ez-prev__h">' + (c ? ezIco(x.cat) : ezIco(null, "shapes", 0)) + "<div><span>" + esc(ent(ENT).nombre) + '</span><b class="ez-prev__nombre">' + esc(nombre || "Tu recurso") + "</b></div></div>" +
+      sec("Detalles", '<p class="ez-sec__x">Lo que cuentes aquí lo lee el conector antes de proponer el recurso: la descripción dice de qué trata y el requisito, quién puede acceder.</p><div class="grid2">' + fld("desc", "Descripción breve", { opc: true }) + fld("requisitos", "Requisito de acceso", { opc: true }) + "</div>") : "") + "</div>" +
+      (T !== "detalles" ? "" : '<aside class="ez-prev"><span class="ez-prev__t">' + ic("eye") + 'Así lo verán los conectores</span><p class="ez-prev__x">Es la tarjeta que cada conector ve cuando le sugerimos este recurso a una persona.</p><div class="ez-prev__c"><div class="ez-prev__h">' + (c ? ezIco(x.cat) : ezIco(null, "shapes", 0)) + "<div><span>" + esc(ent(ENT).nombre) + '</span><b class="ez-prev__nombre">' + esc(nombre || "Tu recurso") + "</b></div></div>" +
       '<div class="ez-prev__p">' + (c ? "<span>" + esc(c.n) + "</span>" : "") + (x.modo ? "<span>" + esc(MODO_T[x.modo]) + "</span>" : "") + "<span>" + (cupo ? cupo + " plazas" : "Sin límite") + "</span>" + (x.urg ? "<span>" + (x.urg === "Urgente" ? "24 h" : "5 días") + "</span>" : "") + "</div>" +
-      '<p class="ez-prev__s"><i></i>' + (c ? "Se sugiere a quien marque " + esc(c.n) + " en su Mapa" : "Elige una necesidad para ver a quién se sugiere") + "</p></div></aside></div></div>";
+      '<p class="ez-prev__s"><i></i>' + (c ? "Se sugiere a quien marque " + esc(c.n) + " en su Mapa" : "Elige una necesidad para ver a quién se sugiere") + "</p></div></aside>") + "</div>" +
+      /* Paso a paso: la barra inferior cambia de paso; en el último guarda (con el relleno de ejemplo al 2.º toque). */
+      '<div class="ez-bar">' + (T === "basico" ? "<span></span>" : btn("Atrás", { v: "quiet", act: "e-prev" })) + (T === "detalles" ? btn(r ? "Guardar cambios" : "Publicar en la red", { act: "rec-guardar", a: { id: "btn-sig" } }) : btn("Continuar", { act: "e-next", a: { id: "btn-sig" } })) + "</div></div>";
   }
   const MODO_T = { Libre: "Acceso libre", "Inscripción": "Inscripción", Solicitud: "Por solicitud" };
   const MODO_D = { Libre: "Sin decisión", "Inscripción": "Confirma plaza", Solicitud: "Decides tú" };
@@ -557,51 +721,62 @@
     const acc = S.accesos.filter((a) => a.persona === p.id).sort((x, y) => y.cuando.localeCompare(x.cuando));
     const tel = p.tel.replace(/\s/g, ""), dims = CAT.dimensiones, nEval = dims.filter((d) => p.mapa[d.id]).length;
     const cnt = (k) => dims.filter((d) => p.mapa[d.id] === k).length;
-    const rojas = dims.filter((d) => p.mapa[d.id] === "r");
+    
     const acto = (txt, icn, o) => '<' + (o.href ? "a" : 'button type="button"') + ' class="kz-act' + (o.main ? " kz-act--main" : "") + '"' + (o.href ? ' href="' + o.href + '"' : "") + ">" + ic(icn) + "<span>" + txt + "</span></" + (o.href ? "a" : "button") + ">";
-    const hero = '<section class="kz-hero"><div class="kz-hero__top"><a class="kz-round kz-round--dk" href="#/personas" aria-label="' + (ROL === "entidad" ? "Volver a Personas" : "Volver a Mis personas") + '">' + ic("chevron-left") + '</a><span class="kz-id">' + esc(p.id) + "</span></div>" +
+    const accs = (v) => acto("Llamar", "phone", { href: "tel:" + tel, main: true }) + acto("Mensaje", "message-circle", { href: "sms:" + tel }) + acto("Postular<span class=\"kz-x\"> a un recurso</span>", "plus", { href: "#/persona/" + encodeURIComponent(p.id) + "/postular", main: true });
+    const hero = '<div class="kz-barw"><div class="kz-pin" aria-hidden="true">' + avatar(ini(nom(p)), p.origen === "autorregistro" ? "amber" : "blue", "medium") + "<h2>" + esc(nom(p)) + '</h2><div class="kz-acts">' + accs() + '</div></div></div><section class="kz-hero"><div class="kz-hero__top"><a class="kz-round kz-round--dk" href="#/personas" aria-label="' + (ROL === "entidad" ? "Volver a Personas" : "Volver a Mis personas") + '">' + ic("chevron-left") + '</a><span class="kz-id">' + esc(p.id) + '</span>' + (p.entidad === ENT ? '<span class="kz-red" title="Esta persona ya está registrada en tu entidad">' + ic("building") + "De tu red · " + esc(ent(ENT).nombre) + "</span>" : "") + "</div>" +
       '<div class="kz-hero__p">' + avatar(ini(nom(p)), p.origen === "autorregistro" ? "amber" : "blue", "large") + '<div class="grow"><h1>' + esc(nom(p)) + "</h1><p>" + esc(p.municipio + " " + p.cp + " · " + p.idioma + " · " + p.canal) + "</p>" +
       '<p class="kz-hero__c">' + (p.conector ? "Conector · " + esc(con(p.conector).nombre) : '<span class="kz-pend">Por asignar a un conector</span>') + "</p></div></div>" +
-      '<div class="kz-acts">' + acto("Llamar", "phone", { href: "tel:" + tel, main: true }) + acto("Mensaje", "message-circle", { href: "sms:" + tel }) + acto("Postular", "plus", { href: "#/persona/" + encodeURIComponent(p.id) + "/postular" }) + "</div></section>";
-    const asig = !p.conector && ROL === "entidad" ? '<div class="kz-card kz-asig"><b>Asignar conector</b><div class="row">' + selConector(p.id) + btn("Asignar", { size: "small", act: "asignar", a: { "data-p": p.id } }) + "</div></div>" : "";
+      '<div class="kz-acts">' + acto("Llamar", "phone", { href: "tel:" + tel, main: true }) + acto("Mensaje", "message-circle", { href: "sms:" + tel }) + acto("Postular<span class=\"kz-x\"> a un recurso</span>", "plus", { href: "#/persona/" + encodeURIComponent(p.id) + "/postular", main: true }) + "</div></section>";
+    const asig = !p.conector && ROL === "entidad" ? '<section class="kz-card kz-asig" aria-labelledby="asig-t"><div class="kz-asig__h">' + ic("user-plus", "kz-asig__ico") + '<div><h2 id="asig-t">Asignar conector</h2><p>Sin conector no empieza el acompañamiento.</p></div></div><div class="row kz-asig__row">' + selConector(p.id) + btn("Asignar", { act: "asignar", a: { "data-p": p.id } }) + "</div></section>" : "";
     const mapa = card('<div class="kz-card-h"><h2>Mapa de Vida</h2><span class="kz-mut">' + nEval + " de " + dims.length + "</span></div>" +
-      '<div class="bc-rd bc-rd--ficha">' + mapaRadar(p.mapa) + '<div class="bc-mapa">' + bloquesMapa(p.mapa, true) + '</div></div><div class="bc-clave"><span><i class="bc-dd bc-dd--r"></i>Necesita apoyo</span><span><i class="bc-dd bc-dd--a"></i>En proceso</span><span><i class="bc-dd bc-dd--v"></i>Estable</span></div>' +
-      '<div class="kz-chips">' + (rojas.length ? rojas.map((d) => '<span class="kz-chip kz-chip--r"><i></i>' + esc(d.n) + "</span>").join("") : '<span class="kz-chip kz-chip--v"><i></i>Sin urgencias</span>') + "</div>" +
+      '<div class="bc-rd bc-rd--ficha">' + mapaRadar(p.mapa) + '<div class="bc-mapa">' + bloquesMapa(p.mapa, true) + '</div></div><div class="bc-clave"><span><i class="bc-lg bc-lg--r"></i>Necesita apoyo</span><span><i class="bc-lg bc-lg--a"></i>En proceso</span><span><i class="bc-lg bc-lg--v"></i>Estable</span></div>' +
       (p.mapaTipo === "corto" ? '<p class="kz-nota">Versión corta: el resto se completa en la entrevista.</p>' : "") +
       "", { id: "mapa", cls: "kz-card" });
     const itin = card('<div class="kz-card-h"><h2>Itinerario</h2><span class="kz-mut">' + prop.length + "</span></div>" +
-      (prop.length ? prop.map((s) => { const r = rec(s.recurso); return '<div class="kz-it"><div class="grow"><b>' + esc(r.nombre) + "</b><span>" + (r.entidad === ENT ? "Tu entidad" : esc(ent(r.entidad).nombre)) + " · " + fecha(s.fecha) + "</span></div>" + st(s.estado) + "</div>"; }).join("") : '<p class="kz-vacio">Sin recursos todavía.</p>') +
+      (prop.length ? prop.map((s) => { const r = rec(s.recurso); return '<div class="kz-it"><div class="grow"><b>' + esc(r.nombre) + "</b><span>" + (r.entidad === ENT ? "Tu entidad" : esc(ent(r.entidad).nombre)) + " · " + fecha(s.fecha) + "</span>" + usoBloque(s) + "</div>" + st(s.estado) + "</div>"; }).join("") : '<p class="kz-vacio">Sin recursos todavía.</p>') +
       '<div class="kz-post">' + btn("Postular a un recurso", { v: "quiet", size: "small", icon: "plus", href: "#/persona/" + encodeURIComponent(p.id) + "/postular", a: { id: "btn-postular" } }) + "</div>", { id: "itinerario", cls: "kz-card" });
     const otras = card('<div class="kz-card-h"><h2>En otras entidades</h2>' + tag(p.consent.entidades ? "Autorizado" : "Sin permiso", p.consent.entidades ? "positive" : "neutral") + "</div>" +
       (!p.consent.entidades ? '<div class="bc-lock">' + ic("lock") + "<div><b>No autorizó compartir su itinerario.</b><p class=\"mut\" style=\"font-size:14px\">No ves si participa en otras entidades.</p></div></div>"
         : aj.length ? aj.map((s) => { const r = rec(s.recurso); return '<div class="kz-it"><div class="grow"><b>' + esc(ent(r.entidad).nombre) + "</b><span>" + esc(r.nombre) + " · " + esc(r.cat) + "</span></div>" + st(s.estado) + "</div>"; }).join("") + '<p class="kz-nota">Nunca ves su diagnóstico ni sus notas.</p>'
           : '<p class="kz-vacio">No participa en otras entidades.</p>'), { id: "otras", cls: "kz-card" });
-    const accesos = '<details class="kz-acc" id="accesos"><summary>' + ic("eye") + "<span>" + acc.length + (acc.length === 1 ? " consulta registrada" : " consultas registradas") + "</span>" + ic("chevron-right") + "</summary>" +
+    const accesos = '<details class="kz-acc" id="accesos" open><summary>' + ic("eye") + "<span>" + acc.length + (acc.length === 1 ? " consulta registrada" : " consultas registradas") + "</span>" + ic("chevron-right") + "</summary>" +
       acc.map((a) => '<div class="kz-it"><div class="grow"><b>' + esc(a.quien) + " · " + esc(ent(a.entidad).nombre) + "</b><span>" + cuando(a.cuando) + " · " + esc(a.para) + "</span></div></div>").join("") + '<p class="kz-nota">La persona puede ver esta lista.</p></details>';
-    const perfil = '<details class="kz-card kz-perfil"><summary><h2>Perfil y consentimientos</h2>' + ic("chevron-down") + '</summary><div class="bc-kv">' + [["Fecha de nacimiento", fecha(p.nac)], ["Documento nacional", p.docTipo + (p.doc ? " · " + p.doc : "")], ["Teléfono", p.tel], ["Email", p.email || "—"], ["Ubicación", p.municipio + " · " + p.cp], ["Idioma", p.idioma], ["Canal preferido", p.canal], ["Alta", fecha(p.alta) + " · " + ent(p.entidad).nombre]].map(([k, v]) => "<div><span>" + k + "</span><b>" + esc(v) + "</b></div>").join("") + "</div>" +
+    const perfil = '<details class="kz-card kz-perfil" open><summary><h2>Perfil y consentimientos</h2>' + ic("chevron-down") + '</summary><div class="bc-kv">' + [["Fecha de nacimiento", fecha(p.nac)], ["Documento nacional", p.docTipo + (p.doc ? " · " + p.doc : "")], ["Teléfono", p.tel], ["Email", p.email || "—"], ["Ubicación", p.municipio + " · " + p.cp], ["Idioma", p.idioma], ["Canal preferido", p.canal], ["Alta", fecha(p.alta) + " · " + ent(p.entidad).nombre]].map(([k, v]) => "<div><span>" + k + "</span><b>" + esc(v) + "</b></div>").join("") + "</div>" +
       CAT.consentimientos.map((c) => '<div class="kz-it">' + ic(p.consent[c.id] ? "check-circle" : "close-circle") + '<span class="grow">' + esc(c.txt) + "</span>" + tag(p.consent[c.id] ? "Sí" : "No", p.consent[c.id] ? "positive" : "neutral") + "</div>").join("") + "</details>";
-    return '<div class="kz-ficha">' + hero + asig + '<div class="kz-body"><div class="kz-col"><div style="order:1">' + mapa + '</div><div style="order:5">' + perfil + '</div></div><div class="kz-col"><div style="order:2">' + itin + '</div><div style="order:3">' + otras + '</div><div style="order:4">' + accesos + "</div></div></div></div>";
+    const gS = ROL === "entidad" ? spGrupo(p) : null, sols = gS && (gS.ab.length || gS.de.length) ? '<article class="sp-card' + (solCol.has(p.id) ? "" : " sp-card--abierta") + '" id="solicitudes" aria-label="Solicitudes a tu entidad"><div class="sp-row sp-row--fija"><button type="button" class="sp-row__tg" data-act="sol-plegar" data-p="' + esc(p.id) + '" aria-expanded="' + !solCol.has(p.id) + '" aria-controls="b-' + esc(p.id) + '"><span class="sp-row__n"><b>Solicitudes a tu entidad</b><small>' + (gS.ab.length ? gS.ab.length + " por decidir" : "Todo decidido") + '</small></span></button><button type="button" class="sp-row__ch" data-act="sol-plegar" data-p="' + esc(p.id) + '" aria-expanded="' + !solCol.has(p.id) + '" aria-label="' + (solCol.has(p.id) ? "Desplegar" : "Plegar") + '">' + ic("chevron-down") + '</button></div><div class="sp-card__b" id="b-' + esc(p.id) + '">' + spLinea(gS) + spSols(gS) + "</div></article>" : "";
+    return '<div class="kz-ficha">' + hero + asig + sols + '<h2 class="kz-sec">Expediente</h2><div class="kz-body"><div class="kz-col"><div style="order:1">' + mapa + '</div><div style="order:5">' + perfil + '</div></div><div class="kz-col"><div style="order:2">' + itin + '</div><div style="order:3">' + otras + '</div><div style="order:4">' + accesos + "</div></div></div></div>";
   }
 
   /* Postular es una pantalla propia (no un modal): elegir el recurso y confirmar en la barra inferior. */
   let postSel = null;
+  /* Consumo de un beneficio recurrente (diario o semanal): cuánto lleva y cuándo lo usó. */
+  const usoBloque = (s) => {
+    const r = rec(s.recurso); if (!r.frecuencia || s.estado !== "Aprobada") return "";
+    const u = (s.usos || []).slice().sort(), n = u.length, m = r.limite, un = r.frecuencia === "Diario" ? (n === 1 ? "día" : "días") : (n === 1 ? "vez" : "veces");
+    return '<div class="uso"><div class="uso__h"><b>Usó ' + n + (m ? " de " + m : "") + " " + un + "</b><span>" + r.frecuencia + (n ? " · Último: " + fecha(u[n - 1]) : " · Aún sin usos") + "</span></div>" +
+      (m ? '<div class="uso__b" role="img" aria-label="' + n + " de " + m + ' usos"><i style="width:' + Math.min(100, Math.round(n / m * 100)) + '%"></i></div>' : "") +
+      (n ? '<details class="uso__d"><summary>Ver usos</summary><ul>' + u.slice().reverse().map((x) => "<li>" + fecha(x) + "</li>").join("") + "</ul></details>" : "") + "</div>";
+  };
   function kPostular(id) {
     const p = per(id);
     if (!p || p.entidad !== ENT) return kPersonas();
     const tiene = new Set(solsDe(p.id).filter((s) => s.estado !== "Rechazada").map((s) => s.recurso));
-    const libres = S.recursos.filter((r) => !tiene.has(r.id) && !r.pausado);
+    /* Una necesidad a la vez: con algo en curso de esa categoría no se puede pedir otro. */
+    const enCurso = (r) => solsDe(p.id).some((x) => ACTIVAS.includes(x.estado) && rec(x.recurso).cat === r.cat);
+    const libres = S.recursos.filter((r) => !tiene.has(r.id) && !r.pausado && !enCurso(r));
     if (!postSel || !libres.some((r) => r.id === postSel)) postSel = (libres.find((r) => r.entidad !== ENT) || libres[0] || {}).id || null;
     const fila = (r) => {
-      const dis = tiene.has(r.id) || r.pausado, on = r.id === postSel, mio = r.entidad === ENT;
+      const dis = tiene.has(r.id) || r.pausado || enCurso(r), on = r.id === postSel, mio = r.entidad === ENT;
       return '<div class="bc-opt kz-rec' + (on ? " on" : "") + (dis ? " kz-rec--off" : "") + '"' + (dis ? "" : ' data-act="k-pos-sel" data-r="' + r.id + '"') + '><div class="nwt-radio-button' + (on ? " nwt-radio-button--checked" : "") + '" role="radio" aria-checked="' + on + '" aria-disabled="' + dis + '" tabindex="' + (dis ? -1 : 0) + '">' +
         '<span class="kz-rec__ico' + (mio ? "" : " kz-rec__ico--der") + '">' + ic(KZ_ICO[r.cat] || "hands-heart") + '</span><span class="nwt-radio-button__label kz-rec__t">' + esc(r.nombre) + '<span class="kz-rec__m"><span class="kz-who' + (mio ? "" : " kz-who--der") + '">' + esc(ent(r.entidad).nombre) + "</span></span>" +
-        '<span class="kz-rec__m">' + (tiene.has(r.id) ? "Ya asignado" : r.pausado ? "Pausado" : "Acceso: " + esc(r.modo) + " · " + (r.urg === "Urgente" ? "Urgente · 24 h" : r.modo === "Solicitud" ? "Plazo 5 días" : "Sin plazo")) + "</span></span>" +
+        '<span class="kz-rec__m">' + (tiene.has(r.id) ? "Ya asignado" : r.pausado ? "Pausado" : enCurso(r) ? "Ya tiene " + esc(r.cat) + " en curso" : "Acceso: " + esc(r.modo) + " · " + (r.urg === "Urgente" ? "Urgente · 24 h" : r.modo === "Solicitud" ? "Plazo 5 días" : "Sin plazo")) + "</span></span>" +
         '<div class="nwt-radio-button__control"><div class="nwt-radio-button__dot"></div></div></div></div>';
     };
     return '<div class="kz-wizwrap kz-sugs kz-postular"><div class="kz-top"><a class="kz-round" href="#/persona/' + encodeURIComponent(p.id) + '" aria-label="Volver a la ficha">' + ic("chevron-left") + "</a></div>" +
       "<h1>Postular a un recurso</h1><p class=\"kz-sub\">Para " + esc(nom(p)) + ". Si es de otra entidad, le llega a su bandeja.</p>" +
       '<div class="kz-reclist" role="radiogroup" aria-label="Recurso">' + S.entidades.map((e) => S.recursos.filter((r) => r.entidad === e.id).map(fila).join("")).join("") + "</div>" +
-      '<div class="kz-foot">' + btn("Postular", { size: "large", act: "postular", a: { "data-p": p.id, id: "btn-postular", ...(postSel ? {} : { disabled: "" }) } }) + "</div></div>";
+      '<div class="kz-foot">' + btn("Cancelar", { v: "quiet", size: "large", href: "#/persona/" + encodeURIComponent(p.id) }) + btn("Postular", { size: "large", act: "postular", a: { "data-p": p.id, id: "btn-postular", ...(postSel ? {} : { disabled: "" }) } }) + "</div></div>";
   }
 
   /* ── armazón por rol: sidebar del SDK + pestañas en móvil ── */
@@ -609,7 +784,7 @@
     ciudadano: () => yoP() ? [["inicio", "Mi expediente", "home", "#/inicio"], ["recursos", "Mis recursos", "hands-heart", "#/recursos"], ["mapa", "Mi Mapa de Vida", "clipboard-list", "#/mapa"], ["privacidad", "Privacidad", "shield-check", "#/privacidad"]]
       : [["inicio", "Inicio", "home", "#/inicio"], ["registro", "Registrarme", "user-plus", "#/registro/1"]],
     conector: () => [["personas", "Mis personas", "users", "#/personas"], ["registrar", "Registrar persona", "user-plus", "#/registrar/1"], ["red", "Recursos de entidades", "building", "#/red"]],
-    entidad: () => { const mis = S.personas.filter((p) => p.entidad === ENT).length, asig = S.personas.filter((p) => p.entidad === ENT && !p.conector).length, sol = entrantesDe().length; return [["resumen", "Resumen", "home", "#/resumen"], ["personas", "Personas", "users", "#/personas", 0, [["personas", "Mis personas", "#/personas", mis, true], ["solicitudes", "Solicitudes", "#/personas/solicitudes", sol], ["asignar", "Por asignar", "#/personas/asignar", asig]]], ["conectores", "Conectores", "handshake", "#/conectores"], ["recursos", "Mis recursos", "hands-heart", "#/recursos"]]; }
+    entidad: () => { const mis = S.personas.filter((p) => p.entidad === ENT).length, asig = S.personas.filter((p) => p.entidad === ENT && !p.conector).length, sol = entrantesDe().length; return [["resumen", "Resumen", "home", "#/resumen"], ["recursos", "Mis recursos", "hands-heart", "#/recursos"], ["conectores", "Conectores", "handshake", "#/conectores"], ["personas", "Personas", "users", "#/personas", 0, [["personas", "Mis personas", "#/personas", mis, true], ["solicitudes", "Recursos solicitados", "#/personas/solicitudes", sol], ["asignar", "Asignar conector", "#/personas/asignar", asig]]]]; }
   };
   const CORTO = { "Mi expediente": "Inicio", "Mis recursos": "Recursos", "Mi Mapa de Vida": "Mapa", "Mis personas": "Personas", "Registrar persona": "Registrar", "Recursos de entidades": "Recursos" };
   const QUIEN = {
@@ -620,17 +795,24 @@
   function shell(activo, body) {
     const m = MENU[ROL](), [n, sub, i, col] = QUIEN[ROL]();
     const badge = (c, neutro) => c ? '<span class="bc-badge' + (neutro ? " bc-badge--n" : "") + '" aria-label="' + c + (neutro ? " en total" : " pendientes") + '">' + c + "</span>" : "";
-    const side = '<aside class="nwt-sidebar nwt-sidebar--mode-fixed nwt-sidebar--open"><div class="nwt-sidebar__toolbar"><div class="nwt-sidebar__toolbar__logo"><a class="bc-brand" href="' + m[0][3] + '">' + ic("globe-pin") + 'Brújula Ciudadana</a></div></div><div class="nwt-sidebar__content"><nav class="nwt-sidebar__menu" aria-label="Menú principal"><ul class="nwt-sidebar__menu__list">' +
+    /* Sin registro el flujo es autoasistido: sin panel lateral ni menú hasta que la persona tiene expediente. */
+    const solo = ROL === "ciudadano" && !yoP();
+    let side = '<aside class="nwt-sidebar nwt-sidebar--mode-fixed nwt-sidebar--open"><div class="nwt-sidebar__toolbar"><div class="nwt-sidebar__toolbar__logo"><a class="bc-brand" href="' + m[0][3] + '">' + MARCA + PALABRA + '</a></div></div><div class="nwt-sidebar__content"><nav class="nwt-sidebar__menu" aria-label="Menú principal"><ul class="nwt-sidebar__menu__list">' +
       m.map(([k, t, icn, h, c, subs]) => {
         const enGrupo = subs && subs.some(([sk]) => sk === activo);
         const li = '<li class="nwt-sidebar__menu__item' + (k === activo && !subs ? " nwt-sidebar__menu__item--active" : "") + (enGrupo ? " bc-grupo--on" : "") + '"><a class="nwt-sidebar__menu__link" href="' + h + '"' + (subs ? "" : ' data-nav="' + k + '"') + (k === activo && !subs ? ' aria-current="page"' : "") + '><div class="nwt-sidebar__menu__content">' + ic(icn, "nwt-sidebar__menu__icon") + '<span class="nwt-sidebar__menu__label">' + t + "</span>" + badge(c) + "</div></a>";
-        return li + (subs ? '<ul class="bc-sub">' + subs.map(([sk, st2, sh, sc, sn]) => '<li><a class="bc-sub__a' + (sk === activo ? " bc-sub__a--on" : "") + '" href="' + sh + '" data-nav="' + sk + '"' + (sk === activo ? ' aria-current="page"' : "") + "><span>" + st2 + "</span>" + badge(sc, sn) + "</a></li>").join("") + "</ul>" : "") + "</li>";
+        return li + (subs ? '<ul class="bc-sub">' + subs.map(([sk, st2, sh, sc, sn]) => '<li><a class="bc-sub__a' + (sk === activo ? " bc-sub__a--on" : "") + '" href="' + sh + '" data-nav="' + sk + '"' + (sk === activo ? ' aria-current="page"' : "") + ">" + ({ personas: ic("users", "bc-sub__i"), asignar: '<i class="ti ti-arrows-exchange bc-sub__i"></i>', solicitudes: '<i class="ti ti-inbox bc-sub__i"></i>' }[sk] || "") + "<span>" + st2 + "</span>" + badge(sc, true) + "</a></li>").join("") + "</ul>" : "") + "</li>";
       }).join("") +
       '</ul></nav><div class="nwt-sidebar__footer"><div class="bc-yo">' + avatar(i, col, "small") + '<span class="grow"><b>' + esc(n) + "</b>" + esc(sub) + '</span></div><button class="nwt-sidebar__footer__logout" type="button" data-act="salir">' + ic("logout", "nwt-sidebar__menu__icon") + '<span class="nwt-sidebar__footer__logout__label">Salir de la demo</span></button></div></div></aside>';
     /* En móvil la navegación es una barra inferior, como en una app nativa. */
-    const tabs = '<nav class="bc-tabbar" aria-label="Menú">' + m.flatMap(([k, t, icn, h, c, subs]) => subs ? subs.map(([sk, st2, sh, sc, sn]) => [sk, st2 === "Mis personas" ? "Personas" : st2, icn, sh, sc]) : [[k, t, icn, h, c]]).map(([k, t, icn, h, c]) => '<a href="' + h + '" data-nav="' + k + '"' + (k === activo ? ' aria-current="page"' : "") + ">" + ic(icn) + "<span>" + esc(CORTO[t] || t) + "</span>" + badge(c) + "</a>").join("") + "</nav>";
-    const top = '<header class="bc-top"><a class="bc-brand" href="' + m[0][3] + '">' + ic("globe-pin") + '<span class="bc-brand-t">Brújula Ciudadana</span></a>' + avatar(i, col, "small") + "</header>";
-    return '<div class="bc-shell">' + side + '<div class="bc-main">' + top + "<main>" + body + "</main>" + tabs + "</div></div>";
+    let tabs = '<nav class="bc-tabbar" aria-label="Menú">' + m.map(([k, t, icn, h, c, subs]) => {
+      /* En móvil el grupo Personas es un solo ítem; sus tres vistas son pestañas dentro de la pantalla. */
+      const on = subs ? subs.some(([sk]) => sk === activo) : k === activo, n = subs ? subs.filter(([, , , , sn]) => !sn).reduce((x, [, , , sc]) => x + (sc || 0), 0) : c;
+      return '<a href="' + h + '" data-nav="' + k + '"' + (on ? ' aria-current="page"' : "") + ">" + ic(icn) + "<span>" + esc(CORTO[t] || t) + "</span>" + badge(n) + "</a>";
+    }).join("") + "</nav>";
+    if (solo) { side = ""; tabs = ""; }
+    const top = '<header class="bc-top"><a class="bc-brand" href="' + m[0][3] + '">' + MARCA + PALABRA + '</a>' + avatar(i, col, "small") + "</header>";
+    return '<div class="bc-shell' + (solo ? ' bc-shell--solo' : '') + '">' + side + '<div class="bc-main">' + top + "<main>" + body + "</main>" + tabs + "</div></div>";
   }
 
   /* ── rutas por rol ── */
@@ -643,6 +825,7 @@
   /* Las franjas bajo la barra de estado y la de gesto toman el color de la pantalla que queda justo detrás. */
   const colorEn = (y) => {
     for (let el = document.elementFromPoint(6, y); el; el = el.parentElement) {
+      if (el.dataset && /^#[0-9a-f]{6}$/i.test(el.dataset.tint || "")) return el.dataset.tint.toLowerCase();
       const c = getComputedStyle(el).backgroundColor;
       if (c && !/^rgba\(.*, 0\)$/.test(c) && c !== "transparent") return "#" + (c.match(/\d+/g) || [255, 255, 255]).slice(0, 3).map((n) => (+n).toString(16).padStart(2, "0")).join("");
     }
@@ -659,11 +842,28 @@
   window.__tintSafe = tintSafe;
   let tintRaf = 0;
   addEventListener("scroll", () => { if (!tintRaf) tintRaf = requestAnimationFrame(() => { tintRaf = 0; tintSafe(); }); }, { passive: true, capture: true });
+  /* Tarjeta de «mi conector» para la persona: quién es, de qué entidad y cómo contactarle. */
+  function modalMiConector() {
+    const p = yoP(), c = p && p.conector && con(p.conector); if (!c) return "";
+    const tel = c.tel ? c.tel.replace(/\s/g, "") : "";
+    return '<div class="ez-mb" data-act="cerrar-mi-con"></div><div class="ez-modal cz-con-m" role="dialog" aria-modal="true" aria-labelledby="cz-cm-t"><div class="cz-cm-h">' + (c.foto ? '<img class="ez-foto" src="' + esc(c.foto) + '" alt="" width="64" height="64">' : avatar(ini(c.nombre), "blue", "large")) +
+      '<div><h2 id="cz-cm-t">' + esc(c.nombre) + "</h2><p class=\"mut\">" + esc(c.rol) + " · " + esc(ent(c.entidad).nombre) + "</p></div></div>" +
+      '<p class="mut">Es la persona que te acompaña en tu proceso. Puedes escribirle o llamarle cuando lo necesites.</p>' +
+      (c.ultima ? '<div class="cz-cm-u">' + ic("clock") + "Última actividad: " + esc(c.ultima) + "</div>" : "") +
+      '<div class="ez-modal__f">' + btn("Cerrar", { v: "mute", act: "cerrar-mi-con" }) + (c.email ? btn("Escribir", { v: "quiet", href: "mailto:" + esc(c.email) }) : "") + (tel ? btn("Llamar", { href: "tel:" + tel }) : "") + "</div></div>";
+  }
+  /* Aprobar pide confirmar con un deslizador: un toque suelto no basta. */
+  function modalAprobar() {
+    const sl = S.solicitudes.find((x) => x.id === aprobando); if (!sl) return "";
+    return '<div class="ez-mb" data-act="aprobar-no"></div><div class="ez-modal sp-conf" role="dialog" aria-modal="true" aria-labelledby="sp-ct"><h2 id="sp-ct">Aprobar solicitud</h2><p class="mut">' + esc(spNombre(per(sl.persona))) + " entra a «" + esc(rec(sl.recurso).nombre) + "». Se avisa a su conector.</p>" +
+      '<div class="sp-sl" id="sp-sl"><span class="sp-sl__t">Desliza para aprobar</span><button type="button" class="sp-sl__h" data-act="aprobar-ok" aria-label="Aprobar. Desliza a la derecha o pulsa Intro">' + ic("arrow-right") + '</button></div><div class="ez-modal__f">' + btn("Cancelar", { v: "mute", act: "aprobar-no" }) + "</div></div>";
+  }
   function render() {
     const h = location.hash, r = RUTAS[ROL].find(([re]) => re.test(h));
     if (!r) { location.replace(INICIO[ROL]); return; }
     const [activo, body] = r[1](h.match(r[0]));
-    $("#app").innerHTML = shell(activo, body);
+    $("#app").innerHTML = shell(activo, body) + (aprobando ? modalAprobar() : "") + (verMiCon ? modalMiConector() : "");
+    if (aprobando) { const h = $(".sp-sl__h"); if (h) h.focus(); }
     tintSafe();
     try { parent.postMessage({ type: "demo-ruta", hash: h }, "*"); parent.postMessage({ type: "demo-pista", clave: h, texto: pista() }, "*"); } catch (e) { /* sin marco */ }
   }
@@ -671,11 +871,29 @@
   const CON_RELLENO = ["yo-1", "yo-2", "yo-3", "con-1", "con-2", "con-3", "con-mapa", "rec-guardar"];
   function pista() {
     const b = $("#btn-sig"); if (!b || !CON_RELLENO.includes(b.dataset.act)) return null;
-    const t = "Toca «" + b.textContent.trim() + "» dos veces";
-    return b.dataset.act === "con-1" ? t + " y prueba con un número nuevo." : t + " y se rellena solo.";
+    const t = "Toca «" + b.textContent.trim() + "» 2 veces";
+    return b.dataset.act === "con-1" ? t + " y prueba otro número." : t + " y se rellena.";
   }
-  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && asignando) { asignando = null; render(); } });
-  window.addEventListener("hashchange", () => { render(); window.scrollTo(0, 0); });
+  document.addEventListener("click", (e) => { if ((popOp || conOp) && !e.target.closest(".ez-popw")) { popOp = false; conOp = false; render(); } });
+  document.addEventListener("change", (e) => { const id = e.target.dataset && e.target.dataset.fcon; if (!id) return; fCons = e.target.checked ? fCons.concat(id) : fCons.filter((x) => x !== id); render(); const n = document.querySelector('[data-fcon="' + id + '"]'); if (n) n.focus(); });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && (asignando || popOp || conOp)) { asignando = null; popOp = false; conOp = false; render(); } });
+  /* Navegar no es instantáneo en un servicio real: esqueleto breve y entrada escalonada, igual en todas las vistas. */
+  const ESPERA_VISTA = 480, ESPERA_ACC = 800, ASIST = /^#\/regist\w+\//;
+  let cargaT = 0, hashPrev = location.hash;
+  const LISTAS = ":is(.cz-tiles,.cz-lista,.ez-lista,.kz-list,.kz-reclist,.kz-tiles,.sp-lista,.ez-cells,.bc-list)>*";
+  function velo(conEsqueleto) {
+    clearTimeout(cargaT);
+    const m = $("main"); if (!m) return;
+    const entra = () => { const mm = $("main"); if (!mm) return; const sk = mm.querySelector(".bc-skel"); if (sk) sk.remove(); mm.classList.remove("bc-carga", "bc-in"); mm.querySelectorAll(LISTAS).forEach((x) => x.style.setProperty("--k", Math.min([...x.parentElement.children].indexOf(x), 10))); void mm.offsetWidth; mm.classList.add("bc-in"); };
+    if (!conEsqueleto) return entra();
+    m.classList.add("bc-carga");
+    m.insertAdjacentHTML("afterbegin", '<div class="bc-skel" role="status" aria-label="Cargando"><i class="sk sk-h"></i><i class="sk sk-s"></i><i class="sk sk-hero"></i><div class="sk-row"><i class="sk sk-c"></i><i class="sk sk-c"></i></div><i class="sk sk-l"></i><i class="sk sk-l"></i><i class="sk sk-l"></i></div>');
+    cargaT = setTimeout(entra, ESPERA_VISTA);
+  }
+  window.addEventListener("hashchange", () => {
+    const h = location.hash, mismoAsist = ASIST.test(h) && ASIST.test(hashPrev) && h.split("/")[1] === hashPrev.split("/")[1];
+    hashPrev = h; render(); window.scrollTo(0, 0); velo(!mismoAsist);
+  });
 
   /* ── acciones ── */
   function crearPersona(extra) {
@@ -710,12 +928,16 @@
         dims.forEach((d) => { D.mapa[d.id] = MAPA_EJ[d.id]; }); D.err = {};
       }
       if (k === "rec") { rellenarRec(); D.err = {}; }
-      if (k === "recursos") D.recursos = sugeridos().slice(0, 3).map((x) => x.r.id);
+      if (k === "recursos") D.recursos = sugeridos().filter((x, i, a) => a.findIndex((y) => y.r.cat === x.r.cat) === i).slice(0, 3).map((x) => x.r.id);
       render();
     },
     chk: (b) => {
       if (b.dataset.c) D.consent[b.dataset.c] = !D.consent[b.dataset.c];
-      if (b.dataset.rec) { const id = b.dataset.rec; D.recursos = D.recursos.includes(id) ? D.recursos.filter((x) => x !== id) : D.recursos.concat(id); }
+      if (b.dataset.rec) {
+        const id = b.dataset.rec, igual = !D.recursos.includes(id) && D.recursos.find((x) => rec(x).cat === rec(id).cat);
+        if (igual) return toast("Ya eligió «" + rec(igual).nombre + "» de " + rec(id).cat + ": no se pide lo mismo en dos lugares.");
+        D.recursos = D.recursos.includes(id) ? D.recursos.filter((x) => x !== id) : D.recursos.concat(id);
+      }
       const on = b.dataset.c ? D.consent[b.dataset.c] : D.recursos.includes(b.dataset.rec);
       b.classList.toggle("on", on); const c = b.querySelector(".nwt-checkbox"); c.classList.toggle("nwt-checkbox--checked", on); c.setAttribute("aria-checked", String(on));
     },
@@ -723,7 +945,7 @@
       D.mapa[b.dataset.d] = b.dataset.v;
       b.parentElement.querySelectorAll(".bc-opt").forEach((x) => { const on = x === b; x.classList.toggle("on", on); const r = x.querySelector(".nwt-radio-button"); r.classList.toggle("nwt-radio-button--checked", on); r.setAttribute("aria-checked", String(on)); });
     },
-    ent: (b) => { D.entidad = b.dataset.e; render(); },
+    ent: (b) => { D.entidad = b.dataset.e; D.entTocada = true; render(); },
     "yo-1": () => { if (insistir("yo-1", okConsent, () => { D.consent.privacidad = D.consent.tratamiento = true; })) { D.err = {}; ir("#/registro/2"); } },
     "yo-2": () => { if (insistir("yo-2", validarDatos, rellenarDatos)) ir("#/registro/3"); },
     "yo-3": () => {
@@ -796,28 +1018,50 @@
     },
     filtro: (b) => { filtro = b.dataset.v; render(); },
     filtro2: (b) => { fL = b.dataset.v; render(); },
+    "pop-dec": (b) => { const id = b.dataset.s; popOp = popOp === id ? false : id; ezRe(popOp ? '#pop-' + id + ' [role="menuitem"]' : "#btn-otras-" + id); },
+    vcon: (b) => { vCon = b.dataset.v; render(); },
+    vsol: (b) => { vSol = b.dataset.v; render(); },
+    "sol-plegar": (b) => { const i = b.dataset.p; solCol.has(i) ? solCol.delete(i) : solCol.add(i); render(); },
+    "sol-abrir": (b) => { const i = b.dataset.p; solAb.has(i) ? solAb.delete(i) : solAb.add(i); render(); },
+    chat: (b) => { const c = con(b.dataset.c); toast("El chat con " + c.nombre + " se abrirá aquí."); },
+    "ver-con": (b) => { fCons = [b.dataset.c]; filtro = "todas"; busca = ""; ir("#/personas"); },
+    "quitar-con": () => { fCons = []; render(); },
+    "pop-con": () => { conOp = !conOp; ezRe("#btn-fcon"); },
+    "e-next": () => { const o = ["basico", "acceso", "detalles"], k = o.indexOf(D.tab || "basico"); D.tab = o[Math.min(k + 1, 2)]; ezRe("#btn-sig"); },
+    "e-prev": () => { const o = ["basico", "acceso", "detalles"], k = o.indexOf(D.tab || "basico"); D.tab = o[Math.max(k - 1, 0)]; ezRe("#btn-sig"); },
     "e-tab": (b) => { D.tab = b.dataset.v; ezRe('[data-act="e-tab"][data-v="' + b.dataset.v + '"]'); },
     "e-sel": (b) => { ezSel = b.dataset.id; ezRe('[data-act="e-sel"][data-id="' + b.dataset.id + '"]'); },
     "e-ir": (b) => { ezSel = b.dataset.id; ir(b.dataset.v === "solicitudes" ? "#/personas/solicitudes" : "#/personas/asignar"); },
     "e-cat": ezCampo("cat"), "e-modo": ezCampo("modo"), "e-urg": ezCampo("urg"), "e-tipo": ezCampo("tipo"),
     "e-cupo": (b) => { const n = +D.datos.cupo || 0, d = +b.dataset.d; D.datos.cupo = d > 0 ? String(n ? n + 1 : 10) : n > 1 ? String(n - 1) : ""; delete D.err.cupo; ezRe('[data-act="e-cupo"][data-d="' + b.dataset.d + '"]'); },
+    "asignar-a": (b) => { const p = per(b.dataset.p); p.conector = b.dataset.c; guardar(); toast(p.nombre + " queda asignada a " + con(p.conector).nombre + "."); render(); },
     "asignar-ab": (b) => { asignando = b.dataset.p; conSel = (S.conectores.find((c) => c.entidad === ENT) || {}).id; ezRe("#ez-mt"); },
     "asignar-sel": (b) => { conSel = b.dataset.c; ezRe('[data-act="asignar-sel"][data-c="' + b.dataset.c + '"]'); },
     "asignar-cancel": () => { asignando = null; ezRe("#btn-asignar-ab"); },
     asignar: (b) => { const p = per(b.dataset.p), sel = document.getElementById("sel-" + p.id); p.conector = sel ? sel.value : conSel; asignando = null; guardar(); toast(p.nombre + " queda asignada a " + con(p.conector).nombre + "."); render(); },
-    decidir: (b) => {
-      const s = S.solicitudes.find((x) => x.id === b.dataset.s);
-      s.estado = b.dataset.e; s.decidida = true;
+    "ver-mi-con": () => { verMiCon = true; render(); },
+    "cerrar-mi-con": () => { verMiCon = false; render(); },
+    "aprobar-ab": (b) => { popOp = false; aprobando = b.dataset.s; render(); },
+    "aprobar-no": () => { aprobando = null; render(); },
+    "aprobar-ok": (b, e) => {
+      if (e && e.isTrusted && e.detail > 0) { const sl = $("#sp-sl"); if (sl) { sl.classList.add("sp-sl--pista"); setTimeout(() => sl.classList.remove("sp-sl--pista"), 700); } return; }
+      const id = aprobando; aprobando = null; ACC.decidir({ dataset: { s: id, e: "Aprobada" } });
+    },
+    decidir: (b) => { popOp = false;
+      const s = S.solicitudes.find((x) => x.id === b.dataset.s), bl = avisosSol(s).bloqueo;
+      if (bl && (b.dataset.e === "Aprobada" || (bl.k === "cupo" && b.dataset.e !== "En lista de espera"))) { render(); return toast("No disponible: " + bl.t); }
+      s.estado = b.dataset.e; s.decidida = hoy();
       S.accesos.push({ persona: s.persona, quien: "Coordinación", entidad: ENT, cuando: ahora(), para: "Decidir la solicitud a " + rec(s.recurso).nombre });
       guardar(); toast("Solicitud: " + s.estado + ". Se avisa al conector de la persona."); render();
     },
-    "rechazar-ab": (b) => { rechazando = b.dataset.s; render(); },
-    "rechazar-cancel": () => { rechazando = null; render(); },
+    "rechazar-ab": (b) => { popOp = false; rechazando = b.dataset.s; ezRe("#mot-" + b.dataset.s); },
+    "rechazar-cancel": (b) => { const id = b.dataset.s; rechazando = null; ezRe("#btn-otras-" + id); },
     rechazar: (b) => {
-      const m = document.getElementById("mot-" + b.dataset.s).value;
+      const m = document.getElementById("mot-" + b.dataset.s).value, txt = document.getElementById("txt-" + b.dataset.s);
       if (!m) return toast("El motivo del rechazo es obligatorio.");
       const s = S.solicitudes.find((x) => x.id === b.dataset.s);
-      s.estado = "Rechazada"; s.motivo = m; s.decidida = true; rechazando = null;
+      s.estado = "Rechazada"; s.motivo = m; s.decidida = hoy(); rechazando = null;
+      if (txt && txt.value.trim()) s.mensaje = txt.value.trim();
       S.accesos.push({ persona: s.persona, quien: "Coordinación", entidad: ENT, cuando: ahora(), para: "Decidir la solicitud a " + rec(s.recurso).nombre });
       guardar(); toast("Solicitud rechazada. El conector puede reasignar o derivar."); render();
     },
@@ -826,6 +1070,7 @@
       const p = per(b.dataset.p), r = rec(postSel);
       if (!r) return;
       if (solsDe(p.id).some((s) => s.recurso === r.id && s.estado !== "Rechazada")) return toast("Ya tiene una solicitud a " + r.nombre + ".");
+      if (solsDe(p.id).some((s) => ACTIVAS.includes(s.estado) && rec(s.recurso).cat === r.cat)) return toast("Ya tiene " + r.cat + " en curso: no se pide lo mismo en dos lugares.");
       S.solicitudes.push({ id: "s" + Date.now(), persona: p.id, recurso: r.id, por: ENT, estado: r.modo === "Solicitud" ? "Pendiente" : "Aprobada", fecha: hoy() });
       if (p.estado === "Abierto") p.estado = "En seguimiento";
       guardar(); postSel = null; ir("#/persona/" + encodeURIComponent(p.id));
@@ -833,8 +1078,36 @@
     }
   };
 
-  document.addEventListener("click", (e) => { const b = e.target.closest("[data-act]"); if (b && ACC[b.dataset.act]) { e.preventDefault(); ACC[b.dataset.act](b); } });
+  /* Guardar, decidir o buscar tarda: el botón muestra que trabaja y no admite un segundo clic. */
+  ["entrar-ejemplo", "yo-crear", "con-crear", "rec-guardar", "buscar", "probar", "asignar-a", "asignar", "aprobar-ok", "decidir", "rechazar", "postular"].forEach((k) => {
+    const f = ACC[k]; if (!f) return;
+    ACC[k] = (b, e) => {
+      if (!(b instanceof Element)) return f(b, e);
+      if (document.body.classList.contains("bc-ocupado")) return;
+      const el = b.closest(".sp-sl") || b; el.classList.add("bc-busy"); el.setAttribute("aria-busy", "true"); document.body.classList.add("bc-ocupado");
+      setTimeout(() => { el.classList.remove("bc-busy"); el.removeAttribute("aria-busy"); f(b, e); setTimeout(() => document.body.classList.remove("bc-ocupado"), 60); }, ESPERA_ACC);
+    };
+  });
+  document.addEventListener("click", (e) => { const b = e.target.closest("[data-act]"); if (b && ACC[b.dataset.act]) { e.preventDefault(); ACC[b.dataset.act](b, e); } });
+  document.addEventListener("pointerdown", (e) => {
+    const h = e.target.closest(".sp-sl__h"); if (!h) return;
+    const sl = h.parentElement, max = sl.clientWidth - h.offsetWidth - 8, x0 = e.clientX, flecha = h.innerHTML; let x = 0, fin = false;
+    h.setPointerCapture(e.pointerId); sl.classList.remove("sp-sl--vuelve"); sl.classList.add("sp-sl--drag");
+    const mv = (m) => {
+      x = Math.max(0, Math.min(max, m.clientX - x0)); sl.style.setProperty("--x", x + "px"); sl.style.setProperty("--p", (x / max).toFixed(3));
+      const ahora = x >= max - 2;
+      if (ahora !== fin) { fin = ahora; sl.classList.toggle("sp-sl--fin", fin); h.innerHTML = fin ? ic("check") : flecha; sl.querySelector(".sp-sl__t").textContent = fin ? "Suelta para aprobar" : "Desliza para aprobar"; }
+    };
+    const up = () => {
+      h.removeEventListener("pointermove", mv); h.removeEventListener("pointerup", up); h.removeEventListener("pointercancel", up); sl.classList.remove("sp-sl--drag");
+      if (fin) { sl.classList.add("sp-sl--ok"); setTimeout(() => ACC["aprobar-ok"](h, null), 380); return; }
+      sl.classList.add("sp-sl--vuelve"); sl.style.setProperty("--x", "0px"); sl.style.setProperty("--p", "0");
+    };
+    h.addEventListener("pointermove", mv); h.addEventListener("pointerup", up); h.addEventListener("pointercancel", up);
+  });
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && aprobando) ACC["aprobar-no"]();
+    if (e.key === "Escape" && verMiCon) ACC["cerrar-mi-con"]();
     if ((e.key === " " || e.key === "Enter") && e.target.matches('[role="checkbox"],[role="radio"]')) { e.preventDefault(); e.target.closest("[data-act]").click(); }
     if (e.key === "Enter" && e.target.hasAttribute("data-q")) ACC.buscar();
   });
@@ -851,14 +1124,22 @@
     if (t.hasAttribute("data-busca")) { busca = t.value; const pos = t.selectionStart; render(); const n = $("#f-busca"); n.focus(); n.setSelectionRange(pos, pos); }
   });
   document.addEventListener("change", (e) => { if (e.target.dataset.f) D.datos[e.target.dataset.f] = e.target.value; });
+  /* El rechazo no se confirma sin motivo: el botón se habilita al elegirlo. */
+  document.addEventListener("change", (e) => { const id = e.target.dataset && e.target.dataset.mot; if (!id) return; const b = document.querySelector('[data-act="rechazar"][data-s="' + id + '"]'); if (b) b.disabled = !e.target.value; });
 
   /* Un borrador perdido por recarga vuelve al primer paso del asistente. */
   if (/^#\/(registro\/[2-4](\/\d)?|registrar\/[2-8])$/.test(location.hash)) location.replace(location.hash.replace(/^(#\/regist\w+)\/.*$/, "$1/1"));
   /* Mini splash de la brújula al abrir la app sin sesión: se va solo y no bloquea. */
   if (ROL === "ciudadano" && !yoP() && /^(#\/inicio)?$/.test(location.hash)) {
     const sp = document.createElement("div"); sp.id = "bc-splash"; sp.setAttribute("role", "presentation");
-    sp.innerHTML = ic("globe-pin") + "<span>Brújula Ciudadana</span>"; document.body.appendChild(sp);
+    sp.innerHTML = MARCA + PALABRA; document.body.appendChild(sp);
     setTimeout(() => { sp.classList.add("out"); setTimeout(() => { sp.remove(); tintSafe(); }, 350); }, 1300);
   }
-  render();
+  render(); velo(!document.getElementById("bc-splash"));
 })();
+
+/* Barra compacta solo cuando la ficha ya se desplazó (DC-145). */
+document.addEventListener("scroll", () => {
+  const s = document.querySelector(".kz-hero"), h = document.querySelector(".kz-pin");
+  if (s && h) h.classList.toggle("kz-pin--on", s.getBoundingClientRect().bottom < 12);
+}, true);

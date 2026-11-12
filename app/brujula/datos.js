@@ -6,7 +6,7 @@ window.BC_CATALOGO = {
   consentimientos: [
     { id: "privacidad", txt: "Acepto la política de privacidad", obligatorio: true },
     { id: "tratamiento", txt: "Autorizo el tratamiento de mis datos personales", obligatorio: true },
-    { id: "entidades", txt: "Autorizo compartir mi itinerario con otras entidades colaboradoras", obligatorio: false, ayuda: "Verán en qué recursos estás y su estado, nunca tu diagnóstico." },
+    { id: "entidades", txt: "Autorizo compartir mi itinerario con otras entidades colaboradoras", obligatorio: false, ayuda: "Necesario para acceder a recursos de otras entidades. Verán en qué recursos estás y su estado, nunca tu diagnóstico." },
     { id: "comunicaciones", txt: "Deseo recibir comunicaciones sobre mi expediente", obligatorio: false }
   ],
   bloques: [
@@ -61,30 +61,37 @@ window.BC_SEMILLA = () => {
   const P = (o) => Object.assign({ email: "", docTipo: "En trámite", doc: "", idioma: "Español", canal: "WhatsApp", municipio: "Madrid", estado: "En seguimiento", mapaTipo: "completo", notas: "" }, o);
   return {
     entidades: [
-      { id: "e1", nombre: "Asociación Puentes", zona: "Usera · Madrid", tipo: "Asociación" },
-      { id: "e2", nombre: "Fundación Raíces", zona: "Carabanchel · Madrid", tipo: "Fundación" },
-      { id: "e3", nombre: "Red Vecinal Sur", zona: "Getafe", tipo: "Asociación vecinal" }
+      { id: "e1", cp: "28026", nombre: "Asociación Puentes", zona: "Usera · Madrid", tipo: "Asociación" },
+      { id: "e2", cp: "28025", nombre: "Fundación Raíces", zona: "Carabanchel · Madrid", tipo: "Fundación" },
+      { id: "e3", cp: "28901", nombre: "Red Vecinal Sur", zona: "Getafe", tipo: "Asociación vecinal" }
     ],
     conectores: [
-      { id: "c1", nombre: "Lucía Romero", entidad: "e1", rol: "Trabajadora social", ultima: "Hoy, 10:42" },
-      { id: "c2", nombre: "Samir El Idrissi", entidad: "e1", rol: "Mediador intercultural", ultima: "Hoy, 09:15" },
-      { id: "c3", nombre: "Marta Gil", entidad: "e1", rol: "Voluntaria", ultima: "Ayer, 18:03" },
+      { id: "c1", nombre: "Lucía Romero", entidad: "e1", rol: "Trabajadora social", ultima: "Hoy, 10:42", foto: "../../shared/img/conectores/lucia.jpg", doc: "DNI 12345678Z", tel: "+34 600 111 201", email: "lucia.romero@puentes.example" },
+      { id: "c2", nombre: "Samir El Idrissi", entidad: "e1", rol: "Mediador intercultural", ultima: "Hoy, 09:15", foto: "../../shared/img/conectores/samir.jpg", doc: "NIE X1234567L", tel: "+34 600 111 202", email: "samir.elidrissi@puentes.example" },
+      { id: "c3", nombre: "Marta Gil", entidad: "e1", rol: "Voluntaria", ultima: "Ayer, 18:03", doc: "DNI 87654321X", tel: "+34 600 111 203", email: "marta.gil@puentes.example" },
       { id: "c4", nombre: "Daniel Ortega", entidad: "e2", rol: "Educador social", ultima: "Hoy, 11:20" },
       { id: "c5", nombre: "Ana Belén Ruiz", entidad: "e3", rol: "Trabajadora social", ultima: "Hoy, 08:50" }
     ],
     recursos: [
       { id: "r1", entidad: "e1", nombre: "Bolsa de alquiler social", cat: "Vivienda", tipo: "Grupo", modo: "Solicitud", urg: "Normal", cupo: 12 },
       { id: "r2", entidad: "e1", nombre: "Orientación jurídica", cat: "Documentación y Trámites", tipo: "Evento", modo: "Inscripción", urg: "Normal", cupo: 20 },
-      { id: "r3", entidad: "e1", nombre: "Banco de alimentos", cat: "Alimentación", tipo: "Grupo", modo: "Libre", urg: "Urgente" },
+      { id: "r3", entidad: "e1", nombre: "Banco de alimentos", cat: "Alimentación", tipo: "Grupo", modo: "Libre", urg: "Urgente", frecuencia: "Diario", limite: 30 },
       { id: "r4", entidad: "e1", nombre: "Taller de competencias digitales", cat: "Competencias Digitales", tipo: "Evento", modo: "Inscripción", urg: "Normal", cupo: 15 },
       { id: "r5", entidad: "e2", nombre: "Albergue", cat: "Vivienda", tipo: "Grupo", modo: "Solicitud", urg: "Urgente", cupo: 30 },
       { id: "r6", entidad: "e2", nombre: "Orientación laboral", cat: "Empleo", tipo: "Grupo", modo: "Inscripción", urg: "Normal", cupo: 25 },
       { id: "r7", entidad: "e2", nombre: "Grupos de apoyo", cat: "Red de Apoyo", tipo: "Grupo", modo: "Libre", urg: "Normal" },
-      { id: "r8", entidad: "e3", nombre: "Comedor social", cat: "Alimentación", tipo: "Grupo", modo: "Libre", urg: "Urgente" },
+      { id: "r8", entidad: "e3", nombre: "Comedor social", cat: "Alimentación", tipo: "Grupo", modo: "Libre", urg: "Urgente", frecuencia: "Diario", limite: 30 },
       { id: "r9", entidad: "e3", nombre: "Atención psicológica", cat: "Salud y Bienestar", tipo: "Grupo", modo: "Solicitud", urg: "Normal", cupo: 8 },
       { id: "r10", entidad: "e3", nombre: "Clases de español", cat: "Formación", tipo: "Grupo", modo: "Inscripción", urg: "Normal", cupo: 18 },
       { id: "r11", entidad: "e2", nombre: "Asesoría legal en extranjería", cat: "Documentación y Trámites", tipo: "Evento", modo: "Solicitud", urg: "Urgente", cupo: 6 },
-      { id: "r12", entidad: "e3", nombre: "Mentor social", cat: "Red de Apoyo", tipo: "Grupo", modo: "Inscripción", urg: "Normal", cupo: 10 }
+      { id: "r12", entidad: "e3", nombre: "Mentor social", cat: "Red de Apoyo", tipo: "Grupo", modo: "Inscripción", urg: "Normal", cupo: 10 },
+      { id: "r13", entidad: "e1", nombre: "Piso de acogida temporal", cat: "Vivienda", tipo: "Individual", modo: "Solicitud", urg: "Normal", cupo: 2 },
+      { id: "r14", entidad: "e1", nombre: "Taller de cocina intercultural", cat: "Formación", tipo: "Evento", modo: "Inscripción", urg: "Normal", cupo: 12, base: 12 },
+      { id: "r15", entidad: "e1", nombre: "Cupo de emergencia habitacional", cat: "Vivienda", tipo: "Grupo", modo: "Solicitud", urg: "Urgente", cupo: 4, base: 3 },
+      { id: "r16", entidad: "e1", nombre: "Apoyo escolar", cat: "Formación", tipo: "Grupo", modo: "Inscripción", urg: "Normal", cupo: 20, base: 6, frecuencia: "Semanal", limite: 12 },
+      { id: "r17", entidad: "e1", nombre: "Acompañamiento psicosocial", cat: "Salud y Bienestar", tipo: "Individual", modo: "Solicitud", urg: "Normal", cupo: 8, base: 8 },
+      { id: "r18", entidad: "e1", nombre: "Despensa solidaria", cat: "Alimentación", tipo: "Grupo", modo: "Libre", urg: "Normal", frecuencia: "Semanal", limite: 12 },
+      { id: "r19", entidad: "e1", nombre: "Feria de empleo", cat: "Empleo", tipo: "Evento", modo: "Inscripción", urg: "Normal", cupo: 40, base: 38 }
     ],
     personas: [
       P({ id: "BC-2026-0141", nombre: "Yasmina", apellidos: "Haddad", nac: "1991-04-12", tel: "+34 611 204 118", cp: "28026", idioma: "Árabe", origen: "conector", entidad: "e1", conector: "c1", alta: "2026-10-02", consent: C(true, true), mapa: M("2101120010110011") }),
@@ -100,17 +107,24 @@ window.BC_SEMILLA = () => {
     /* por = entidad que hizo la postulación. */
     solicitudes: [
       { id: "s1", persona: "BC-2026-0141", recurso: "r1", por: "e1", estado: "Pendiente", fecha: "2026-11-04" },
-      { id: "s2", persona: "BC-2026-0141", recurso: "r5", por: "e2", estado: "Aprobada", fecha: "2026-10-20" },
+      { id: "s2", persona: "BC-2026-0141", recurso: "r6", por: "e2", estado: "Aprobada", fecha: "2026-10-20" },
       { id: "s3", persona: "BC-2026-0141", recurso: "r10", por: "e3", estado: "En lista de espera", fecha: "2026-10-24" },
       { id: "s4", persona: "BC-2026-0152", recurso: "r6", por: "e2", estado: "Aprobada", fecha: "2026-10-18" },
       { id: "s5", persona: "BC-2026-0152", recurso: "r2", por: "e1", estado: "Aprobada", fecha: "2026-10-10" },
-      { id: "s6", persona: "BC-2026-0167", recurso: "r3", por: "e1", estado: "Aprobada", fecha: "2026-10-16" },
+      { id: "s6", persona: "BC-2026-0167", recurso: "r3", por: "e1", estado: "Aprobada", fecha: "2026-10-16", usos: ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-26", "2026-10-27", "2026-10-28", "2026-10-30", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-09", "2026-11-10", "2026-11-11"] },
       { id: "s7", persona: "BC-2026-0167", recurso: "r9", por: "e3", estado: "Pendiente", fecha: "2026-11-06" },
       { id: "s8", persona: "BC-2026-0188", recurso: "r4", por: "e1", estado: "Aprobada", fecha: "2026-10-30" },
       { id: "s9", persona: "BC-2026-0188", recurso: "r7", por: "e2", estado: "Aprobada", fecha: "2026-11-02" },
       { id: "s10", persona: "BC-2026-0119", recurso: "r1", por: "e2", estado: "Pendiente", fecha: "2026-11-08" },
       { id: "s11", persona: "BC-2026-0125", recurso: "r2", por: "e3", estado: "Pendiente", fecha: "2026-11-09" },
-      { id: "s12", persona: "BC-2026-0170", recurso: "r1", por: "e1", estado: "Aprobada", fecha: "2026-09-01" }
+      { id: "s12", persona: "BC-2026-0170", recurso: "r1", por: "e1", estado: "Aprobada", fecha: "2026-09-01" },
+      /* r13 queda con una plaza: Leila y Fatou compiten por la última. Nadie pide la misma necesidad en dos sitios. */
+      { id: "s13", persona: "BC-2026-0188", recurso: "r13", por: "e1", estado: "Aprobada", fecha: "2026-10-29" },
+      { id: "s14", persona: "BC-2026-0125", recurso: "r13", por: "e3", estado: "Pendiente", fecha: "2026-11-10" },
+      { id: "s15", persona: "BC-2026-0167", recurso: "r13", por: "e1", estado: "Pendiente", fecha: "2026-11-11" },
+      { id: "s16", persona: "BC-2026-0188", recurso: "r8", por: "e3", estado: "Aprobada", fecha: "2026-11-02", usos: ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-09", "2026-11-10", "2026-11-11"] },
+      { id: "s18", persona: "BC-2026-0141", recurso: "r3", por: "e1", estado: "Aprobada", fecha: "2026-10-26", usos: ["2026-10-27", "2026-10-28", "2026-10-29", "2026-10-30", "2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-09", "2026-11-10", "2026-11-11"] },
+      { id: "s17", persona: "BC-2026-0152", recurso: "r18", por: "e1", estado: "Aprobada", fecha: "2026-10-20", usos: ["2026-10-22", "2026-10-29", "2026-11-05"] }
     ],
     accesos: [
       { persona: "BC-2026-0141", quien: "Lucía Romero", entidad: "e1", cuando: "2026-11-10 16:20", para: "Seguimiento del caso" },

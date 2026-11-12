@@ -6,12 +6,12 @@ body.rol-ciudadano .cz-pg h2{font-size:17px;line-height:1.3;font-weight:600}
 @media (max-width:820px){body.rol-ciudadano .bc-page.cz-pg{padding:24px 20px 112px}}
 body.rol-ciudadano:has(.cz-wiz) .bc-tabbar,body.rol-ciudadano:has(.cz-bienv) .bc-tabbar{display:none}
 /* Botón principal: grande y redondo, a todo el ancho. */
-body.rol-ciudadano .cz-pie .nwt-button,body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=loud]{width:100%;min-height:56px;font-size:17px;font-weight:600}
+body.rol-ciudadano .cz-pie .nwt-button,body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=loud]{width:100%;min-height:56px;font-size:16px;font-weight:600}
 body.rol-ciudadano .cz-cta .nwt-button[nwt-variant=quiet]{width:100%;min-height:48px;font-size:15px;font-weight:600;color:var(--bc-ink)}
 body.rol-ciudadano .cz-card{background:var(--bc-surface);border-radius:24px;padding:18px}
 
 /* ── Bienvenida ── */
-body.rol-ciudadano .cz-bienv{width:100%;max-width:440px;margin:0 auto;height:calc(100dvh - var(--bc-safe-top,0px) - var(--bc-safe-bot,0px));min-height:0;overflow:hidden;display:flex;flex-direction:column;background:var(--bc-bg)}
+body.rol-ciudadano .cz-bienv{width:100%;max-width:440px;margin:0 auto;margin-top:calc(-1 * var(--bc-safe-top,0px));height:calc(100dvh - var(--bc-safe-bot,0px));min-height:0;overflow:hidden;display:flex;flex-direction:column;background:var(--bc-bg)}
 html:has(.cz-bienv){overflow:hidden}
 body.rol-ciudadano .cz-hero{position:relative;overflow:hidden;flex:0 1 40%;min-height:210px;display:flex;flex-direction:column;background:var(--bc-dark);color:#fff;border-radius:0 0 36px 36px;padding:24px 24px 32px;gap:24px}
 body.rol-ciudadano .cz-marca{position:relative;display:flex;align-items:center;gap:8px;font-weight:600;font-size:15px}
@@ -19,14 +19,14 @@ body.rol-ciudadano .cz-hero .nwt-icon{font-size:22px;color:#FF9A5C}
 body.rol-ciudadano .cz-brujula{position:absolute;right:-90px;top:-40px;pointer-events:none}
 body.rol-ciudadano .cz-hero h1{position:relative;margin-top:auto;font-size:36px;line-height:1.05;letter-spacing:-.03em;color:#fff}
 body.rol-ciudadano .cz-hero h1 span{color:#FF9A5C}
-body.rol-ciudadano .cz-pasos{list-style:none;margin:0;padding:0 24px;display:flex;flex-direction:column;gap:4px;flex:1}
+body.rol-ciudadano .cz-pasos{list-style:none;margin:0;padding:0 24px;display:flex;flex-direction:column;gap:10px;flex:1}
 body.rol-ciudadano .cz-pasos li{display:flex;align-items:center;gap:14px}
 body.rol-ciudadano .cz-pasos b{flex:1;font-size:16px;font-weight:600}
 body.rol-ciudadano .cz-pasos li > span:last-child{font-size:13px;color:var(--bc-mut)}
 body.rol-ciudadano .cz-pi{width:44px;height:44px;border-radius:14px;background:var(--bc-surface);color:var(--bc-acc);display:flex;align-items:center;justify-content:center;flex:none}
 body.rol-ciudadano .cz-pi .nwt-icon{font-size:22px}
 body.rol-ciudadano .cz-cta{padding:8px 24px 24px;display:flex;flex-direction:column;gap:6px}
-body.rol-ciudadano .cz-lock{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-lock{display:flex;align-items:center;justify-content:center;gap:6px;font-size:16px;color:var(--bc-mut)}
 body.rol-ciudadano .cz-lock .nwt-icon{font-size:14px}
 @media (min-width:821px){html:has(.cz-bienv){overflow:auto}body.rol-ciudadano .cz-bienv{height:auto;min-height:0;margin:40px auto;border-radius:36px;overflow:hidden;box-shadow:0 10px 40px rgba(22,23,43,.12)}}
 
@@ -52,7 +52,7 @@ body.rol-ciudadano .cz-cuerpo .bc-ejemplo{margin:-6px 0 0}
 body.rol-ciudadano .cz-pie{position:sticky;bottom:0;display:flex;flex-direction:column;gap:10px;padding:14px 0 24px;background:linear-gradient(to bottom,rgba(242,243,247,0),var(--bc-bg) 28%)}
 body.rol-ciudadano .cz-plazo{display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:#93370D}
 body.rol-ciudadano .cz-plazo .nwt-icon{font-size:16px}
-body.rol-ciudadano .cz-nota{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-nota{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--bc-mut)}
 body.rol-ciudadano .cz-nota .nwt-icon{font-size:16px}
 
 /* Permisos: la casilla del SDK se dibuja como interruptor. */
@@ -192,17 +192,36 @@ body.rol-ciudadano .cz-mot{font-size:13px;color:var(--bc-mut)}
 /* ── Mapa de Vida ── */
 body.rol-ciudadano .cz-chips-r{display:flex;flex-wrap:wrap;gap:8px}
 body.rol-ciudadano .cz-chip{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:999px;background:var(--bc-surface);font-size:13px;font-weight:600}
+body.rol-ciudadano .cz-mp-sub{margin-top:4px;font-size:14px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-mp-hero{gap:14px}
+body.rol-ciudadano .cz-mp-bar{display:flex;gap:3px;height:14px}
+body.rol-ciudadano .cz-mp-bar i{flex:1;border-radius:4px;background:#4A4D6A}
+body.rol-ciudadano .cz-mp-bar i.cz-r{background:var(--bc-r)}
+body.rol-ciudadano .cz-mp-bar i.cz-a{background:var(--bc-a)}
+body.rol-ciudadano .cz-mp-bar i.cz-v{background:var(--bc-v)}
+body.rol-ciudadano .cz-mp-leg{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:#C9CBD6}
+body.rol-ciudadano .cz-mp-leg span{display:flex;align-items:center;gap:6px}
+body.rol-ciudadano .cz-mp-leg b{color:#fff;font-size:15px}
+body.rol-ciudadano .cz-mp-leg .cz-dot{width:10px;height:10px}
+body.rol-ciudadano .cz-mp-con{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:1px solid #2B2D45;font-size:14px;color:#E6E7EE}
 body.rol-ciudadano .cz-bl{display:flex;flex-direction:column;gap:8px}
-body.rol-ciudadano .cz-bl h2{font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bc-mut)}
+body.rol-ciudadano .cz-bl h2{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--bc-mut)}
+body.rol-ciudadano .cz-bl h2 span{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none}
+body.rol-ciudadano .cz-foco{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:22px;background:var(--bc-surface);color:inherit;text-decoration:none;box-shadow:inset 4px 0 0 var(--bc-r)}
+body.rol-ciudadano .cz-foco b{display:block;font-size:16px;color:var(--bc-ink,#16172B)}
+body.rol-ciudadano .cz-foco .grow span{font-size:13px;color:var(--bc-mut)}
+body.rol-ciudadano .cz-foco>.nwt-icon{color:var(--bc-mut)}
+body.rol-ciudadano .cz-tb{width:40px;height:40px;flex:none;border-radius:14px;display:flex;align-items:center;justify-content:center;background:#E6E7EE;color:#4A4D63}
+body.rol-ciudadano .cz-tb .nwt-icon{font-size:20px;color:inherit}
+body.rol-ciudadano .cz-foco .cz-tb{background:#FDE3E1;color:#B42318}
 body.rol-ciudadano .cz-tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-body.rol-ciudadano .cz-tile{aspect-ratio:1;border-radius:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:6px;text-align:center}
-body.rol-ciudadano .cz-tile .nwt-icon{font-size:22px}
-body.rol-ciudadano .cz-tile span{font-size:12px;font-weight:600;line-height:1.15}
-body.rol-ciudadano .cz-tile.cz-r{background:#FDE3E1;color:#B42318}
-body.rol-ciudadano .cz-tile.cz-a{background:#FEF0C7;color:#93370D}
-body.rol-ciudadano .cz-tile.cz-v{background:#DCFAE6;color:#067647}
-body.rol-ciudadano .cz-tile.cz-n{background:#E6E7EE;color:#4A4D63}
-body.rol-ciudadano .cz-tile .nwt-icon{color:inherit}
+body.rol-ciudadano .cz-tile{background:var(--bc-surface);border-radius:20px;padding:14px 6px 12px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-width:0}
+body.rol-ciudadano .cz-tile b{font-size:13px;font-weight:600;line-height:1.15;color:var(--bc-ink,#16172B)}
+body.rol-ciudadano .cz-tile small{font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#E6E7EE;color:#4A4D63}
+body.rol-ciudadano .cz-tile.cz-r .cz-tb,body.rol-ciudadano .cz-tile.cz-r small{background:#FDE3E1;color:#B42318}
+body.rol-ciudadano .cz-tile.cz-a .cz-tb,body.rol-ciudadano .cz-tile.cz-a small{background:#FEF0C7;color:#93370D}
+body.rol-ciudadano .cz-tile.cz-v .cz-tb,body.rol-ciudadano .cz-tile.cz-v small{background:#DCFAE6;color:#067647}
+body.rol-ciudadano .cz-tile.cz-r{box-shadow:inset 0 0 0 2px #FDA29B}
 
 /* ── Privacidad ── */
 body.rol-ciudadano .cz-stack{display:flex;flex-direction:column;gap:16px}
@@ -246,3 +265,82 @@ body.rol-ciudadano .cz-qk .cz-qn{float:right;font-weight:700;color:var(--bc-ink)
 body.rol-ciudadano .bc-dim.cz-q1{padding:0;background:none;border-radius:0}
 body.rol-ciudadano .cz-q1 .cz-qo{display:flex;flex-direction:column;gap:10px}
 body.rol-ciudadano .cz-q1 .bc-opt{min-height:64px;display:flex;align-items:center;border-radius:20px;background:var(--bc-surface);font-size:16px;font-weight:600}
+
+/* Bienvenida: los textos de los dos botones en 16px. */
+body.rol-ciudadano .cz-cta .nwt-button,body.rol-ciudadano .cz-cta .nwt-button__content{font-size:16px}
+
+/* Duración de cada paso como tag: fondo propio para que se lea sobre el gris de la página. */
+body.rol-ciudadano .cz-pasos .nwt-badge{background:#E6E7EE;flex:none}
+body.rol-ciudadano .cz-pasos .nwt-badge__label{font-size:12px;font-weight:600;color:var(--bc-ink)}
+
+/* Hero: fondo en degradado; las personas se ven suaves y se difuminan hacia abajo y hacia la derecha. */
+body.rol-ciudadano .cz-hero{background:linear-gradient(165deg,#272A55 0%,#1B1D3C 45%,#16172B 100%)}
+body.rol-ciudadano .cz-hero::before{content:"";position:absolute;inset:0;background:url(../../shared/img/fondo-personas.jpg) left top/cover no-repeat;opacity:.1;mix-blend-mode:screen;-webkit-mask-image:radial-gradient(120% 90% at 0% 0%,#000 0%,rgba(0,0,0,.5) 45%,transparent 80%);mask-image:radial-gradient(120% 90% at 0% 0%,#000 0%,rgba(0,0,0,.5) 45%,transparent 80%);pointer-events:none}
+body.rol-ciudadano .cz-hero .cz-sub{position:relative;margin-top:10px;font-size:16px;line-height:1.35;color:#C9CBD6;max-width:28ch}
+
+/* En el ciudadano los botones llevan solo texto, siempre en 16px. */
+body.rol-ciudadano .nwt-button,body.rol-ciudadano .nwt-button .nwt-button__content{font-size:16px}
+body.rol-ciudadano .nwt-button .nwt-button__icon{display:none}
+
+/* El hero sube bajo la barra de estado: el degradado y las personas continúan sin franja. */
+body.rol-ciudadano .cz-hero{padding-top:calc(24px + var(--bc-safe-top,0px))}
+
+/* Escritorio: la bienvenida ocupa toda la pantalla, hero a la izquierda y los pasos a la derecha. */
+@media (min-width:821px){
+  html:has(.cz-bienv){overflow:hidden}
+  body.rol-ciudadano .cz-bienv{max-width:none;width:100%;height:calc(100dvh - var(--bc-safe-bot,0px));margin:0;border-radius:0;box-shadow:none;overflow:hidden;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);grid-template-rows:1fr auto auto auto 1fr;column-gap:0}
+  body.rol-ciudadano .cz-bienv .cz-hero{grid-column:1;grid-row:1 / -1;border-radius:0 40px 40px 0;height:100%;padding:40px 48px;justify-content:space-between}
+  body.rol-ciudadano .cz-hero h1{font-size:clamp(44px,5vw,68px);margin-top:auto}
+  body.rol-ciudadano .cz-hero .cz-sub{font-size:clamp(18px,1.5vw,22px);max-width:30ch}
+  body.rol-ciudadano .cz-bienv .cz-pasos-t{grid-row:2}body.rol-ciudadano .cz-bienv .cz-pasos{grid-row:3}body.rol-ciudadano .cz-bienv .cz-cta{grid-row:4}
+  body.rol-ciudadano .cz-bienv .cz-pasos-t,body.rol-ciudadano .cz-bienv .cz-pasos,body.rol-ciudadano .cz-bienv .cz-cta{grid-column:2;width:min(100%,460px);margin-left:auto;margin-right:auto;box-sizing:border-box}
+  body.rol-ciudadano .cz-bienv .cz-pasos{flex:none;padding:0 24px}
+}
+
+/* Progreso solo con segmentos (sin números): más angostos porque hay uno por pantalla. */
+body.rol-ciudadano .cz-prog{gap:3px}
+
+/* Escritorio: más aire entre el título de los pasos, la lista y los botones. */
+@media (min-width:821px){
+  body.rol-ciudadano .cz-bienv .cz-pasos-t{padding:0 24px 24px}
+  body.rol-ciudadano .cz-bienv .cz-pasos{gap:24px}
+  body.rol-ciudadano .cz-bienv .cz-cta{padding:48px 24px 0;gap:16px}
+}
+
+body.rol-ciudadano .cz-qi{background:none}
+body.rol-ciudadano .cz-qi .bc-gi{width:56px;height:56px;border-radius:18px}
+body.rol-ciudadano .cz-qi .bc-gi .nwt-icon{font-size:26px}
+
+/* Registro sin expediente: fondo en degradado con la ilustración de personas al pie, como el hub. */
+body.rol-ciudadano .bc-shell--solo{position:relative;background:linear-gradient(180deg,#F8F9FC 0%,#F2F3F7 55%,#EBEAF3 100%)}
+body.rol-ciudadano .bc-shell--solo::before{content:"";position:fixed;left:0;right:0;bottom:0;height:min(55vh,520px);background:url(../../shared/img/fondo-personas.jpg) center bottom/cover no-repeat;opacity:.09;-webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.7) 35%,transparent 100%);mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.7) 35%,transparent 100%);pointer-events:none;z-index:0}
+body.rol-ciudadano .bc-shell--solo .bc-main{position:relative;z-index:1}
+body.rol-ciudadano .bc-shell--solo .cz-pie{background:linear-gradient(to bottom,rgba(242,243,247,0),rgba(242,243,247,.92) 28%)}
+
+/* El relleno de ejemplo se hace con la pista (2 toques en Continuar): el botón aparte sobra. */
+body.rol-ciudadano .bc-ejemplo{display:none}
+
+/* Cabecera de cada paso: título y etiqueta a la izquierda, el ícono inline a la derecha. */
+body.rol-ciudadano .cz-hd{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+body.rol-ciudadano .cz-hd__t{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+body.rol-ciudadano .cz-hd .cz-ico{flex:none}
+
+/* Barra inferior: franja de borde a borde detrás del botón; el contenido se desvanece al pasar por detrás. */
+body.rol-ciudadano .cz-pie{background:none;position:sticky;z-index:5}
+body.rol-ciudadano .bc-shell--solo .cz-pie{background:none}
+body.rol-ciudadano .cz-pie::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:100vw;transform:translateX(-50%);z-index:-1;background:rgba(248,249,252,.78);-webkit-backdrop-filter:blur(14px) saturate(1.1);backdrop-filter:blur(14px) saturate(1.1);border-top:1px solid rgba(22,23,43,.07)}
+.cz-near{margin-left:auto;padding:2px 10px;border-radius:999px;background:#DCFAE6;color:#067647;font-size:12px;font-weight:600;white-space:nowrap}
+.cz-near{margin-left:auto;padding:2px 10px;border-radius:999px;background:#DCFAE6;color:#067647;font-size:12px;font-weight:600;white-space:nowrap}
+body.rol-ciudadano .cz-pie::before{bottom:calc(-1 * var(--bc-safe-bot,0px))}
+body.rol-ciudadano .cz-expl{margin:0 0 12px;font-size:14px;line-height:1.4;color:var(--bc-mut)}
+body.rol-ciudadano .cz-pie::before{background:rgba(255,255,255,.95)}
+body.rol-ciudadano .cz-tile small{display:block;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Mi conector: fila tocable que abre su tarjeta */
+body.rol-ciudadano button.cz-mp-con{width:100%;background:none;border-left:0;border-right:0;border-bottom:0;font:inherit;text-align:left;cursor:pointer}
+body.rol-ciudadano .cz-mp-con > span{flex:1}
+body.rol-ciudadano .cz-mp-con .nwt-icon{font-size:18px;color:#C9CBD9}
+.cz-cm-h{display:flex;align-items:center;gap:14px}
+.cz-cm-h h2{font-size:20px;margin:0}
+.cz-cm-h p{margin:2px 0 0}
+.cz-cm-u{display:flex;align-items:center;gap:6px;margin:0;font-size:13px;color:var(--bc-mut)}
+.cz-cm-u .nwt-icon{font-size:16px}

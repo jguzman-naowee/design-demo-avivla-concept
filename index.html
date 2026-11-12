@@ -6,9 +6,13 @@
 <title>Brújula Ciudadana · Concepto · Naowee</title>
 <link rel="stylesheet" href="shared/base.css">
 <style>
-main{max-width:1000px;margin:0 auto;padding:clamp(24px,6vw,64px) 16px}
-h1{font-size:clamp(26px,4vw,38px);margin:0 0 8px}
-p.lead{color:var(--mut);margin:0 0 32px;max-width:62ch}
+/* Fondo de la portada: la ilustración nace abajo y se desvanece hacia arriba hasta quedar transparente. */
+body{position:relative;min-height:100vh}
+body::before{content:"";position:absolute;inset:auto 0 0 0;height:min(55vh,520px);z-index:0;pointer-events:none;background:url(shared/img/fondo-personas.jpg) center bottom/cover no-repeat;opacity:.06;-webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.75) 35%,transparent 100%);mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.75) 35%,transparent 100%)}
+main{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:clamp(24px,6vw,64px) 16px}
+.marca{margin:0 0 6px;text-align:center;font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#FF7500}
+h1{text-align:center;font-size:clamp(26px,4vw,38px);margin:0 0 8px;text-shadow:0 0 14px #F4F4F9,0 0 6px #F4F4F9}
+p.lead{text-align:center;color:var(--mut);margin:0 auto 32px;max-width:52ch;text-shadow:0 0 12px #F4F4F9,0 0 6px #F4F4F9}
 .opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
 .opt{display:flex;flex-direction:column;gap:10px;padding:22px;border:1.5px solid var(--line);border-radius:var(--r);background:#fff;color:inherit;text-decoration:none;min-height:230px}
 .opt:hover{border-color:var(--v);box-shadow:0 8px 28px rgba(74,42,128,.14)}
@@ -17,56 +21,57 @@ p.lead{color:var(--mut);margin:0 0 32px;max-width:62ch}
 .opt p{margin:0;color:var(--mut);font-size:14px}
 .opt ul{margin:0;padding-left:18px;color:var(--ink);font-size:13.5px}
 .opt .tag{margin-top:auto;align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;border-radius:999px;padding:4px 10px;background:var(--bg);color:var(--ink)}
-.opt .tag.w{color:var(--warn);background:#FFE7B3}
-.tour{display:flex;align-items:center;gap:18px;margin:0 0 14px;padding:18px 22px;border-radius:var(--r);background:#16172B;color:#fff;text-decoration:none;border:1.5px solid #16172B;position:relative;overflow:hidden}
-.tour::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#FF9A5C}
-.tour:hover{box-shadow:0 8px 28px rgba(22,23,43,.35);border-color:#FF9A5C}
-.tour:focus-visible{outline:3px solid #FF9A5C;outline-offset:3px}
-.tour .play{flex:none;width:52px;height:52px;border-radius:50%;background:#FF9A5C;color:#16172B;display:grid;place-items:center}
+.opt .tag.w{color:#A34700;background:#FFE8D2}
+.tour{display:flex;align-items:center;gap:18px;margin:24px 0 14px;padding:18px 22px;border-radius:var(--r);background:#16172B;color:#fff;text-decoration:none;border:1.5px solid #16172B;position:relative;overflow:hidden}
+.tour::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:#FF7500}
+.tour:hover{box-shadow:0 8px 28px rgba(22,23,43,.35);border-color:#FF7500}
+.tour:focus-visible{outline:3px solid #FF7500;outline-offset:3px}
+.tour .play{flex:none;width:52px;height:52px;border-radius:50%;background:#FF7500;color:#16172B;display:grid;place-items:center}
 .tour .play svg{width:24px;height:24px;margin-left:3px}
 .tour .txt{flex:1;min-width:0}
-.tour .kick{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#FF9A5C;margin-bottom:4px}
+.tour .kick{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#FF7500;margin-bottom:4px}
 .tour h2{margin:0 0 2px;font-size:20px}
 .tour p{margin:0;font-size:14px;color:#D9DAE8}
 @media(max-width:520px){.tour{align-items:flex-start;padding:16px 16px 16px 20px;gap:14px}.tour .play{width:44px;height:44px}}
-.pie{margin-top:28px;font-size:13px;color:var(--mut)}
+.pie{text-align:center;margin-top:28px;font-size:13px;color:var(--mut)}
 </style>
 </head>
 <body>
 <main>
-  <img src="shared/logos/naowee.svg" alt="Naowee" width="127" height="24" style="display:block;margin-bottom:32px">
-  <h1>Brújula Ciudadana · ¿Con qué rol entras?</h1>
-  <p class="lead">Cada rol entra con su propia sesión y solo ve lo que le toca. Dentro de cada demo puedes cambiar entre móvil y escritorio. Los datos son de ejemplo.</p>
-  <a class="tour" id="recorrido" href="tour/index.html">
-    <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>
-    <span class="txt"><span class="kick">Recorrido guiado</span><h2>Ver el recorrido</h2><p>Dos minutos para entender cómo se conectan las personas, los conectores y las entidades</p></span>
-  </a>
+  <img src="shared/logos/naowee.svg" alt="Naowee" width="190" height="36" style="display:block;margin:0 auto 32px">
+  <p class="marca">Brújula Ciudadana</p>
+  <h1>¿En qué programa estoy?</h1>
+  <p class="lead"><b>Brújula Ciudadana</b> reúne los programas de distintas entidades para que cada persona sepa qué ayuda le corresponde.</p>
   <div class="opts">
     <a class="opt" href="demo/?app=ciudadano" id="rol-ciudadano">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
       <h2>Ciudadano</h2>
-      <ul><li>Registrarme</li><li>Mi expediente y mis recursos</li><li>Privacidad: quién vio mis datos</li></ul>
-      <span class="tag w">Decisión nueva</span>
+      <p>Regístrate, sigue tus recursos y mira quién consultó tus datos.</p>
+      <span class="tag w">Flujo autónomo</span>
     </a>
     <a class="opt" href="demo/?app=conector&sup=movil" id="rol-conector">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m11 17 2 2a1 1 0 1 0 3-3"/><path d="m14 14 2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 1 1-3-3l2.8-2.8a5 5 0 0 1 6 0l.8.6"/><path d="m21 3 1 11h-2M3 3 2 14l6.5 6.5a1 1 0 1 0 3-3M3 4h8"/></svg>
       <h2>Conector</h2>
-      <ul><li>Mis personas</li><li>Registrar a una persona</li><li>Ficha, derivación y recursos de la red</li></ul>
-      <span class="tag">MVP</span>
+      <p>Acompaña a las personas, completa su Mapa de Vida y derívalas a recursos.</p>
+      <span class="tag">Flujo asistido</span>
     </a>
     <a class="opt" href="demo/?app=entidad" id="rol-entidad">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-6h6v6M9 10h.01M15 10h.01"/></svg>
       <h2>Entidad</h2>
-      <ul><li>Resumen y bandeja</li><li>Personas y su uso en otras entidades</li><li>Conectores</li><li>Mis recursos: lo que ofrece y su gestión</li></ul>
+      <p>Gestiona tus recursos, recibe personas y responde sus solicitudes.</p>
       <span class="tag">Solo la entidad lo ve</span>
     </a>
     <a class="opt" href="demo/?app=alta-entidad" id="rol-alta">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M12 18v-6M9 15h6"/></svg>
       <h2>Registro de entidad</h2>
-      <p>Formulario para dar de alta una entidad en la red.</p>
+      <p>Da de alta una entidad en la red con los recursos que ofrece.</p>
       <span class="tag w">Admin Only</span>
     </a>
   </div>
+  <a class="tour" id="recorrido" href="tour/index.html">
+    <span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg></span>
+    <span class="txt"><span class="kick">Recorrido guiado</span><h2>Ver el recorrido</h2><p>Dos minutos para entender cómo se conectan las personas, los conectores y las entidades</p></span>
+  </a>
   <p class="pie">Para ver cómo se conectan: registra a alguien como Ciudadano o Conector y después entra como Entidad, sin restablecer los datos.</p>
 </main>
 </body>

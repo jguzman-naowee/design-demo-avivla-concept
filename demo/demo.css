@@ -162,8 +162,29 @@ body.solo .supsel{display:none}
 .pista button{flex:none;width:32px;height:32px;margin:-6px 0 -6px;border:0;border-radius:8px;background:transparent;color:#fff;font-size:22px;line-height:1;cursor:pointer}
 .pista button:hover{background:rgba(255,255,255,.12)}
 .pista button:focus-visible{outline:2px solid #fff;outline-offset:1px}
-@media (max-width:760px){.pista{top:10px;left:12px;right:12px;max-width:none}body.con-pista .scroller{padding-top:80px}}
+
 
 /* Degradado del color de fondo bajo la hora: el contenido que sube al hacer scroll se desvanece sin cortarse. */
 .sbar::before{content:"";position:absolute;inset:0 0 -14px;z-index:-1;background:linear-gradient(to bottom,var(--est) 55%,transparent)}
 .hbar::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,var(--estb,var(--est)) 55%,transparent)}
+
+/* Pista tipo toast: baja desde arriba, barra de progreso en reversa durante 4 s. */
+.pista{overflow:hidden;opacity:0;transform:translateY(-16px);transition:transform .8s ease,opacity .8s ease}
+.pista.on{opacity:1;transform:none}
+.pista b{font-weight:700;color:#FF7500}
+.pista::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:#FF7500;transform-origin:left center}
+.pista.on::after{animation:pistaBarra 5s linear forwards}
+@keyframes pistaBarra{to{transform:scaleX(0)}}
+@media (prefers-reduced-motion:reduce){.pista{transition:none}.pista.on::after{animation-duration:5s}}
+
+/* La pista vive dentro de la pantalla del mockup, arriba y centrada bajo la barra de estado. */
+.screen .pista{position:absolute;top:calc(var(--bc-status,44px) + 8px);left:12px;right:12px;margin:0 auto;width:max-content;max-width:min(300px,calc(100% - 24px));z-index:8;font-size:16px;pointer-events:auto}
+.holder[data-dev=desk] .screen .pista{top:14px}
+.holder[data-dev=desk] .screen .pista{padding:7px 6px 7px 14px}
+.screen .pista button{display:none}
+.screen .pista{padding-right:14px}
+.screen .pista{line-height:20px}
+.holder[data-dev=desk] .screen .pista{padding-top:5px;padding-bottom:5px}
+.bback{width:28px;height:26px;border:0;border-radius:7px;background:#fff;color:var(--ink,#16172B);font-size:20px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.bback:hover{background:#E4E6F0}.bback:focus-visible{outline:2px solid #FF7500}
+/* Oculto por ahora: el panel de casos vuelve quitando esta regla */
+#casosBtn{display:none}

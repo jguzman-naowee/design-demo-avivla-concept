@@ -9,6 +9,9 @@
 
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const doc = () => frame.contentDocument;
+  /* Atrás del visor: navega el historial de la app sin reiniciar el caso. */
+  const bBack = document.getElementById("bBack");
+  if (bBack) bBack.addEventListener("click", () => { try { frame.contentWindow.history.back(); } catch (e) { /* sin acceso */ } });
   /* Esc también debe salir de la vista plana cuando el foco está dentro de la app (el iframe no propaga teclas). */
   const hookKeys = () => {
     const d = doc(); if (!d || d.__escHook) return; d.__escHook = true;
@@ -30,7 +33,10 @@
   };
   /* La app pinta navegación distinta por ancho (sidebar o pestañas): se usa la coincidencia visible. */
   const q = (sel) => { const all = [...doc().querySelectorAll(sel)]; return all.find((x) => x.getClientRects().length) || all[0] || null; };
-  const find = (sel) => {
+  /* La app simula cargas (esqueleto al navegar, botón ocupado al guardar): se espera a que termine. */
+  const listo = () => !doc().querySelector(".bc-carga") && !doc().body.classList.contains("bc-ocupado");
+  const find = async (sel) => {
+    for (let n = 0; n < 40 && !(q(sel) && listo()); n++) await sleep(100);
     const el = q(sel);
     if (!el) throw new Error("No se encontró «" + sel + "» en la pantalla.");
     return el;
@@ -47,17 +53,47 @@
     return r;
   };
   /* Pista: la app avisa cuando abre un formulario con relleno al 2.º clic; cerrada, no vuelve hasta otra pantalla. */
-  const pistaEl = $("pista"); let pistaCerrada = null;
+  const pistaEl = $("pista"); let pistaCerrada = null, pistaDada = false;
+  /* Una sola vez por flujo: al cargar un caso nuevo vuelve a poder salir. */
+  frame.addEventListener("load", () => { pistaDada = false; });
   window.addEventListener("message", (e) => {
     if (e.data && e.data.type === "demo-estatus" && e.source === frame.contentWindow) { setEstatus(e.data.color, e.data.bot); return; }
     if (!e.data || e.data.type !== "demo-pista" || e.source !== frame.contentWindow) return;
     if (e.data.clave !== pistaCerrada) pistaCerrada = null;
-    $("pistaTxt").textContent = e.data.texto || "";
-    verPista(!!e.data.texto && pistaCerrada !== e.data.clave);
+    const quiere = !!e.data.texto && pistaCerrada !== e.data.clave && (!pistaDada || pistaEl.dataset.clave === e.data.clave);
+    if (e.data.texto) { const t = $("pistaTxt"), b = document.createElement("b"); b.textContent = "Demo: "; t.textContent = ""; t.append(b, e.data.texto); }
+    if (quiere && pistaEl.dataset.clave === e.data.clave && pistaEl.classList.contains("on")) return;
     pistaEl.dataset.clave = e.data.clave;
+    if (quiere) pistaDada = true;
+    verPista(quiere);
   });
-  /* Con pista visible el dispositivo baja: la pista vive en una franja propia, nunca encima de la pantalla. */
-  const verPista = (on) => { if (pistaEl.hidden === !on) return; pistaEl.hidden = !on; document.body.classList.toggle("con-pista", on); layout(); };
+  /* Como un toast de la app: baja, dura 4 s con una barra que se vacía y se quita; cerrada o vencida, no vuelve hasta otra pantalla. */
+  let pistaT = 0, pistaOcultar = 0;
+  /* En escritorio la pista se centra sobre el contenido de la app (no sobre toda la ventana) y queda bajo la barra del navegador. */
+  const centrarPista = () => {
+    const st = pistaEl.style;
+    if (holder.dataset.dev !== "desk") { st.left = st.right = st.top = st.translate = ""; return; }
+    try {
+      const pg = frame.contentDocument.querySelector(".cz-pg, .bc-page, main"), r = pg && pg.getBoundingClientRect();
+      const bb = document.querySelector(".bbar"), top = (bb ? bb.offsetHeight : 0) + 2;
+      if (r && r.width) { st.left = (r.left + r.width / 2) + "px"; st.right = "auto"; st.translate = "-50% 0"; st.top = top + "px"; }
+    } catch (e) { /* sin acceso al marco */ }
+  };
+  const verPista = (on) => {
+    clearTimeout(pistaT); clearTimeout(pistaOcultar);
+    if (on) {
+      /* Espera 1,5 s antes de aparecer, entra despacio y se queda 5 s para dar tiempo de leerla. */
+      pistaT = setTimeout(() => {
+        pistaEl.hidden = false; document.body.classList.add("con-pista"); layout();
+        centrarPista();
+        pistaEl.classList.remove("on"); void pistaEl.offsetWidth; pistaEl.classList.add("on");
+        pistaT = setTimeout(() => { pistaCerrada = pistaEl.dataset.clave; verPista(false); }, 5000);
+      }, 1500);
+    } else {
+      pistaEl.classList.remove("on");
+      pistaOcultar = setTimeout(() => { pistaEl.hidden = true; document.body.classList.remove("con-pista"); layout(); }, 850);
+    }
+  };
   $("pistaX").addEventListener("click", () => { pistaCerrada = pistaEl.dataset.clave; verPista(false); });
   const hideFx = () => { S.fxEl = null; spot.hidden = true; cur.hidden = true; spot.classList.remove("hint"); };
 
@@ -68,8 +104,8 @@
     const my = S.token;
     try {
       /* La pantalla puede estar aún pintándose tras el paso anterior: se espera un poco a que aparezca el elemento. */
-      let el = q(st.sel);
-      for (let n = 0; !el && n < 10; n++) { await sleep(150); if (my !== S.token || S.busy || S.mode !== "paso") return; el = q(st.sel); }
+      let el = listo() && q(st.sel);
+      for (let n = 0; !el && n < 20; n++) { await sleep(150); if (my !== S.token || S.busy || S.mode !== "paso") return; el = listo() && q(st.sel); }
       if (!el) return;
       const r = await focus(el);
       if (my !== S.token || S.busy || S.mode !== "paso") return;
@@ -80,7 +116,7 @@
 
   async function runStep(st) {
     if (st.t === "goto") { hideFx(); await load(st.url || S.app.inicio || "index.html"); return; }
-    const el = find(st.sel), r = await focus(el);
+    const el = await find(st.sel), r = await focus(el);
     if (st.t === "click") {
       S.fxClick = true; cur.hidden = false;
       cur.style.transform = "translate(" + (r.x + r.w / 2) + "px," + (r.y + r.h / 2) + "px)";
@@ -206,7 +242,6 @@
   const setZoom = (z) => { zoom = Math.min(ZMAX, Math.max(ZMIN, Math.round(z * 100) / 100)); layout(); };
   $("zOut").addEventListener("click", () => setZoom(zoom - ZSTEP));
   $("zIn").addEventListener("click", () => setZoom(zoom + ZSTEP));
-  $("zFit").addEventListener("click", () => setZoom(1));
   if (window.ResizeObserver) new ResizeObserver(layout).observe(device); else addEventListener("resize", layout);
 
   function setPanel(open) {

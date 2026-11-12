@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Registro de entidad · Brújula Ciudadana</title>
+<link rel="icon" type="image/svg+xml" href="../../shared/img/marca-brujula.svg">
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="_sdk/css/styles.css">
 <link rel="stylesheet" href="_sdk/css/fuentes.css">
@@ -63,14 +64,14 @@
 <body>
 <div class="ae-shell">
 <aside class="ae-panel">
-  <span class="ae-brand"><div class="nwt-icon"><i class="naotech-icon-globe-pin"></i></div>Brújula Ciudadana</span>
+  <span class="ae-brand"><img src="../../shared/img/marca-brujula.svg" width="40" height="40" alt=""><img src="../../shared/img/palabra-brujula-oscuro.svg" height="44" alt="Brújula Ciudadana"></span>
   <svg class="ae-deco" width="360" height="360" viewBox="0 0 300 300" aria-hidden="true"><circle cx="150" cy="150" r="140" fill="none" stroke="#2B2D45" stroke-width="1.5"/><circle cx="150" cy="150" r="96" fill="none" stroke="#2B2D45" stroke-width="1.5"/><circle cx="150" cy="150" r="52" fill="none" stroke="#33354F" stroke-width="1.5"/><circle cx="150" cy="150" r="7" fill="#FF9A5C"/></svg>
   <h1>Suma tu entidad<br><span>a la red</span></h1>
   <ol class="ae-pasos" id="pasos" aria-label="Pasos del registro"></ol>
   <a class="ae-salir" href="../../index.html" target="_top">Salir de la demo</a>
 </aside>
 <main class="ae-main">
-  <div id="formWrap" class="stack">
+  <div id="formWrap" class="stack bc-entra">
     <div><button type="button" class="nwt-button" nwt-variant="quiet" nwt-size="small" id="ejemplo"><span class="nwt-button__content"><div class="nwt-icon nwt-button__icon"><i class="naotech-icon-sparkles"></i></div>Completar con datos de ejemplo</span></button></div>
     <form id="form" novalidate class="stack"></form>
     <div id="error"></div>
@@ -144,8 +145,14 @@
     pasos();
   };
   $("ejemplo").addEventListener("click", () => { fallo = false; rellenar(); });
+  /* Enviar tarda como en un servicio real: el botón muestra que trabaja y no admite otro clic. */
   form.addEventListener("submit", (e) => {
-    e.preventDefault(); limpiar();
+    e.preventDefault(); if (document.body.classList.contains("bc-ocupado")) return;
+    const b = $("enviar"); b.classList.add("bc-busy"); b.setAttribute("aria-busy", "true"); document.body.classList.add("bc-ocupado");
+    setTimeout(() => { b.classList.remove("bc-busy"); b.removeAttribute("aria-busy"); enviar(); pista(!$("formWrap").hidden); setTimeout(() => document.body.classList.remove("bc-ocupado"), 60); }, 800);
+  });
+  function enviar() {
+    limpiar();
     const malos = [...form.querySelectorAll("input[required]:not([type=checkbox]),select[required]")].filter((el) => !bien(el));
     malos.forEach((el) => el.closest(".nwt-input-box").classList.add("nwt-input-box--error"));
     const sinArea = !form.querySelector('[name="areas"]:checked'), sinAcepto = !$("acepto").checked, sinRec = !filas().length;
@@ -159,13 +166,12 @@
     }
     $("okEmail").textContent = form.elements.email.value;
     $("okRecs").innerHTML = recsDe().map((r) => '<div class="bc-item"><div class="grow"><div class="t">' + r.nombre.replace(/</g, "&lt;") + '</div><div class="s">' + r.cat + " · " + r.modo + (r.cupo ? " · " + r.cupo.replace(/</g, "&lt;") + " plazas" : "") + "</div></div></div>").join("");
-    $("formWrap").hidden = true; $("ok").hidden = false; pasos(true); window.scrollTo(0, 0);
-  });
+    $("formWrap").hidden = true; $("ok").hidden = false; $("ok").classList.add("bc-entra"); pasos(true); window.scrollTo(0, 0);
+  }
   $("otra").addEventListener("click", () => { form.reset(); $("recs").innerHTML = ""; filaRec(); limpiar(); fallo = false; $("formWrap").hidden = false; $("ok").hidden = true; pasos(); });
   /* Pista del patrón de 3 clics para el marco de la demo (fuera de la pantalla). */
   const pista = (on) => { try { parent.postMessage({ type: "demo-pista", clave: on ? "form" : "ok", texto: on ? "Toca «Registrar entidad» dos veces y se rellena solo." : null }, "*"); } catch (e) { /* sin marco */ } };
   pista(true);
-  $("enviar").addEventListener("click", () => setTimeout(() => pista(!$("formWrap").hidden), 0));
   $("otra").addEventListener("click", () => pista(true));
   window.DEMO = { restablecer() { /* sin datos guardados */ } };
 })();
